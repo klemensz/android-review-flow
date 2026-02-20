@@ -41,8 +41,12 @@ The official Play Core In-App Review API is:
 
 ---
 
-## Installation
+## Installation (Coming Soon)
 
+Maven Central coordinates will be published soon.
+Until then, use the modules via local source/composite build.
+
+<!--
 Add Maven Central and the dependency coordinates:
 
 ```kotlin
@@ -65,6 +69,7 @@ implementation("com.zleptnig:reviewflow-compose:0.1.0")
 ```
 
 For local development, you can still include modules manually or via composite build.
+-->
 
 ---
 
@@ -236,24 +241,11 @@ It only guarantees correct orchestration.
 
 ## Publishing (Maintainers)
 
-The library modules are configured for `maven-publish` and optional artifact signing.
-
-Set credentials via Gradle properties or environment variables:
-- `OSSRH_USERNAME`
-- `OSSRH_PASSWORD`
-- `SIGNING_KEY_ID` (optional)
-- `SIGNING_KEY` (ASCII-armored private key)
-- `SIGNING_PASSWORD`
-
-Local publish smoke check:
+Release instructions are documented in [`RELEASING.md`](RELEASING.md).
+For a quick local check:
 
 ```bash
 ./gradlew :review-core:publishReleasePublicationToMavenLocal :review-compose:publishReleasePublicationToMavenLocal
-```
-
-Release repository URLs are configurable via:
-- `MAVEN_CENTRAL_RELEASE_URL`
-- `MAVEN_CENTRAL_SNAPSHOT_URL`
 
 ---
 
