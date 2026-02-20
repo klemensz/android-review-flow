@@ -6,7 +6,7 @@ plugins {
 }
 
 android {
-    namespace = "at.zleptnig.reviewflow.core"
+    namespace = "com.zleptnig.reviewflow.core"
     compileSdk = 36
 
     defaultConfig {
@@ -56,7 +56,7 @@ afterEvaluate {
                 from(components["release"])
 
                 groupId = project.group.toString()
-                artifactId = "review-core"
+                artifactId = "reviewflow-core"
                 version = project.version.toString()
 
                 pom {

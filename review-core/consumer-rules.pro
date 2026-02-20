@@ -1,3 +1,3 @@
 # Keep public API
--keep class at.zleptnig.reviewflow.** { *; }
--dontwarn at.zleptnig.reviewflow.**
+-keep class com.zleptnig.reviewflow.** { *; }
+-dontwarn com.zleptnig.reviewflow.**

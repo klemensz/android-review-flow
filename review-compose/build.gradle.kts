@@ -7,7 +7,7 @@ plugins {
 }
 
 android {
-    namespace = "at.zleptnig.reviewflow.compose"
+    namespace = "com.zleptnig.reviewflow.compose"
     compileSdk = 36
 
     defaultConfig { minSdk = 23 }
@@ -50,7 +50,7 @@ afterEvaluate {
                 from(components["release"])
 
                 groupId = project.group.toString()
-                artifactId = "review-compose"
+                artifactId = "reviewflow-compose"
                 version = project.version.toString()
 
                 pom {

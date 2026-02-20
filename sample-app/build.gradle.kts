@@ -5,11 +5,11 @@ plugins {
 }
 
 android {
-    namespace = "at.zleptnig.reviewflow.sampleapp"
+    namespace = "com.zleptnig.reviewflow.sampleapp"
     compileSdk = 36
 
     defaultConfig {
-        applicationId = "at.zleptnig.reviewflow.sampleapp"
+        applicationId = "com.zleptnig.reviewflow.sampleapp"
         minSdk = 23
         targetSdk = 35
         versionCode = 1

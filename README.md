@@ -55,13 +55,13 @@ repositories {
 Core only:
 
 ```kotlin
-implementation("at.zleptnig.reviewflow:review-core:0.1.0")
+implementation("com.zleptnig:reviewflow-core:0.1.0")
 ```
 
 Compose integration:
 
 ```kotlin
-implementation("at.zleptnig.reviewflow:review-compose:0.1.0")
+implementation("com.zleptnig:reviewflow-compose:0.1.0")
 ```
 
 For local development, you can still include modules manually or via composite build.
