@@ -1,0 +1,56 @@
+root = true
+
+# ========================
+# Global
+# ========================
+[*]
+charset = utf-8
+end_of_line = lf
+insert_final_newline = true
+trim_trailing_whitespace = true
+indent_style = space
+indent_size = 4
+max_line_length = 120
+
+# ========================
+# Kotlin
+# ========================
+[*.{kt,kts}]
+indent_size = 4
+continuation_indent_size = 4
+
+# Ktlint defaults
+ktlint_code_style = ktlint_official
+ktlint_standard_filename = disabled
+
+# Compose friendliness
+ktlint_standard_argument-list-wrapping = disabled
+ktlint_standard_parameter-list-wrapping = disabled
+ktlint_standard_chain-wrapping = disabled
+
+# Don't aggressively wrap
+ktlint_standard_max-line-length = 120
+
+# Allow long annotations / composables
+ktlint_standard_annotation = enabled
+
+# Trailing commas help diffs
+ij_kotlin_allow_trailing_comma = true
+ij_kotlin_allow_trailing_comma_on_call_site = true
+
+# Imports
+ij_kotlin_name_count_to_use_star_import = 99
+ij_kotlin_name_count_to_use_star_import_for_members = 99
+
+# ========================
+# XML (Android)
+# ========================
+[*.xml]
+indent_size = 4
+
+# ========================
+# Markdown
+# ========================
+[*.md]
+trim_trailing_whitespace = false
+max_line_length = off

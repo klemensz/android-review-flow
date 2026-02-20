@@ -1,0 +1,49 @@
+# Build outputs
+**/build/**
+**/.gradle/**
+**/out/**
+
+# IDE
+.idea/**
+*.iml
+.vscode/**
+
+# Gradle wrapper (never modify)
+gradle/wrapper/**
+gradlew
+gradlew.bat
+
+# Generated / caches
+**/generated/**
+**/tmp/**
+**/.kotlin/**
+local.properties
+
+# Android
+**/captures/**
+**/outputs/**
+**/intermediates/**
+**/lint-results/**
+**/reports/**
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Git
+.git/**
+.gitignore
+
+# Documentation artifacts
+*.png
+*.jpg
+*.gif
+*.svg
+*.pdf
+
+# Sample APKs
+*.apk
+*.aab
+
+# Maven publishing outputs (later)
+**/publications/**

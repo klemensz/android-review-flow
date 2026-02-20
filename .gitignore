@@ -1,0 +1,75 @@
+# ========================
+# Gradle
+# ========================
+.gradle/
+**/build/
+**/out/
+local.properties
+
+# Gradle configuration cache
+.gradle/configuration-cache/
+
+# ========================
+# Android / Kotlin
+# ========================
+captures/
+.externalNativeBuild/
+.cxx/
+
+# Kotlin
+.kotlin/
+
+# ========================
+# IDEs
+# ========================
+# Android Studio / IntelliJ
+.idea/
+*.iml
+
+# VS Code
+.vscode/
+
+# ========================
+# OS
+# ========================
+.DS_Store
+Thumbs.db
+
+# ========================
+# Logs
+# ========================
+*.log
+
+# ========================
+# Generated artifacts
+# ========================
+**/generated/
+**/intermediates/
+**/outputs/
+**/reports/
+**/lint-results*
+
+# ========================
+# Keystore / secrets
+# ========================
+*.jks
+*.keystore
+keystore.properties
+
+# ========================
+# Test & coverage
+# ========================
+coverage/
+jacoco.exec
+*.ec
+
+# ========================
+# Publishing (Maven)
+# ========================
+**/publications/
+*.module
+*.pom
+*.aar
+*.apk
+*.aab
+
