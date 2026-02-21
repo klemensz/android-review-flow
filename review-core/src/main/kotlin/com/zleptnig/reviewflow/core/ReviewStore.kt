@@ -8,7 +8,7 @@ import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import kotlinx.coroutines.flow.first
 
-private val Context.reviewFlowDataStore by preferencesDataStore(name = "reviewflow")
+private val Context.reviewFlowDataStore by preferencesDataStore(name = "reviewflow_lib_preferences")
 
 internal class ReviewStore(
     private val context: Context,
