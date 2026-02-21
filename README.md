@@ -246,6 +246,7 @@ For a quick local check:
 
 ```bash
 ./gradlew :review-core:publishReleasePublicationToMavenLocal :review-compose:publishReleasePublicationToMavenLocal
+```
 
 ---
 
