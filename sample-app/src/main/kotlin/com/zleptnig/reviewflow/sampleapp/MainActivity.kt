@@ -17,7 +17,10 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
@@ -52,6 +55,7 @@ class MainActivity : ComponentActivity() {
                                 val noOpHintText = lastNoOpHint?.toString() ?: "unknown"
                                 Log.d(LOG_TAG, "state=Ready noOpHint=$noOpHintText raw=$readyStateString")
                             }
+
                             is ReviewState.Done -> {
                                 Log.d(LOG_TAG, "state=Done")
                                 val result = when (lastNoOpHint) {
@@ -62,10 +66,12 @@ class MainActivity : ComponentActivity() {
                                 Log.d(LOG_TAG, "result=$result")
                                 lastNoOpHint = null
                             }
+
                             is ReviewState.Error -> {
                                 Log.d(LOG_TAG, "state=$state")
                                 lastNoOpHint = null
                             }
+
                             else -> Log.d(LOG_TAG, "state=$state")
                         }
                     }
@@ -79,49 +85,92 @@ class MainActivity : ComponentActivity() {
         }
 
         setContent {
-            SampleScreen(orchestrator)
-        }
-    }
-}
-
-@Composable
-private fun SampleScreen(orchestrator: ReviewOrchestrator? = null) {
-    var trigger by remember { mutableStateOf(false) }
-    val scope = rememberCoroutineScope()
-
-    Column(
-        modifier = Modifier.fillMaxSize(),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center,
-    ) {
-        Button(
-            onClick = {
-                scope.launch {
-                    requestReviewFromSample(
-                        onSuccessMoment = orchestrator?.let { { it.onSuccessMoment() } },
-                        setTrigger = { trigger = it },
-                    )
-                }
-            },
-        ) {
-            Text("Ask for review")
-        }
-
-        orchestrator?.let {
-            ReviewEffect(
-                orchestrator = it,
-                trigger = trigger,
-                onConsumed = { trigger = false },
+            SampleScreen(
+                orchestrator = orchestrator,
+                onAskForSimpleReview = {
+                    lifecycleScope.launch {
+                        requestReviewFromSample(
+                            onSuccessMoment = { orchestrator.onSuccessMoment() },
+                            tryShow = { orchestrator.tryShow(this@MainActivity) },
+                        )
+                    }
+                },
             )
         }
     }
 }
 
+@Composable
+private fun SampleScreen(
+    orchestrator: ReviewOrchestrator? = null,
+    onAskForSimpleReview: (() -> Unit)? = null,
+) {
+    Column(
+        modifier = Modifier.fillMaxSize(),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(24.dp, Alignment.CenterVertically),
+    ) {
+        Text(
+            text = "ReviewFlow Demo App",
+            fontSize = 20.sp,
+            fontWeight = FontWeight.Medium,
+        )
+        SimpleReviewDemo(onAskForSimpleReview = onAskForSimpleReview)
+        orchestrator?.let { AdvancedReviewEffectDemo(orchestrator = it) }
+    }
+}
+
+@Composable
+private fun SimpleReviewDemo(onAskForSimpleReview: (() -> Unit)? = null) {
+    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+        Text("Simple demo: direct button action")
+        Button(onClick = { onAskForSimpleReview?.invoke() }) {
+            Text("Ask for review (simple)")
+        }
+    }
+}
+
+@Composable
+private fun AdvancedReviewEffectDemo(orchestrator: ReviewOrchestrator) {
+    var trigger by remember { mutableStateOf(false) }
+    val scope = rememberCoroutineScope()
+
+    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+        Text("Advanced demo: event trigger with ReviewEffect")
+        Button(
+            onClick = {
+                scope.launch {
+                    requestReviewWithEffectTrigger(
+                        onSuccessMoment = { orchestrator.onSuccessMoment() },
+                        setTrigger = { trigger = it },
+                    )
+                }
+            },
+        ) {
+            Text("Ask for review (effect)")
+        }
+    }
+
+    ReviewEffect(
+        orchestrator = orchestrator,
+        trigger = trigger,
+        onConsumed = { trigger = false },
+    )
+}
+
 internal suspend fun requestReviewFromSample(
-    onSuccessMoment: (suspend () -> Unit)?,
+    onSuccessMoment: suspend () -> Unit,
+    tryShow: suspend () -> Boolean,
+): Boolean {
+    onSuccessMoment()
+    return tryShow()
+}
+
+internal suspend fun requestReviewWithEffectTrigger(
+    onSuccessMoment: suspend () -> Unit,
     setTrigger: (Boolean) -> Unit,
 ) {
-    onSuccessMoment?.invoke()
+    onSuccessMoment()
     setTrigger(true)
 }
 

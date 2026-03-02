@@ -133,14 +133,40 @@ The dialog may or may not appear — this is controlled by Google Play.
 
 ## Compose Usage
 
+### Simple case (direct button action)
+
+```kotlin
+class MainActivity : ComponentActivity() {
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+
+        setContent {
+            val orchestrator = rememberReviewOrchestrator()
+            val scope = rememberCoroutineScope()
+
+            Button(
+                onClick = {
+                    scope.launch {
+                        orchestrator.onSuccessMoment()
+                        orchestrator.tryShow(this@MainActivity)
+                    }
+                },
+            ) {
+                Text("Rate app")
+            }
+        }
+    }
+}
+```
+
+### Advanced case (event-/ViewModel-driven trigger)
+
 ```kotlin
 val orchestrator = rememberReviewOrchestrator()
-
 var trigger by remember { mutableStateOf(false) }
 
-Button(onClick = { trigger = true }) {
-    Text("Rate app")
-}
+// Example: set this from a one-shot ViewModel event.
+Button(onClick = { trigger = true }) { Text("Rate app") }
 
 ReviewEffect(
     orchestrator = orchestrator,
@@ -148,6 +174,13 @@ ReviewEffect(
     onConsumed = { trigger = false }
 )
 ```
+
+`ReviewEffect` targets a different use case.
+
+When to use which:
+- Direct button action: user explicitly taps "Rate app" and you want the shortest flow.
+- `ReviewEffect`: trigger comes from state/events (for example, a one-shot ViewModel event).
+- The `sample-app` demonstrates both patterns side by side (`simple` and `effect` buttons).
 
 ---
 
