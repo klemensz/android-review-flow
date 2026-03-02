@@ -55,11 +55,17 @@ class ReviewOrchestrator internal constructor(
      * the review may be shown again. This is intentional – prefer showing over silently blocking.
      */
     suspend fun tryShow(activity: Activity): Boolean {
-        if (!mutex.tryLock()) {
-            _events.tryEmit(ReviewEvent.Skipped(SkipReason.InFlight))
-            return false
+        return mutex.withTryLock(
+            onLocked = {
+                _events.tryEmit(ReviewEvent.Skipped(SkipReason.InFlight))
+                false
+            },
+        ) {
+            tryShowLocked(activity)
         }
+    }
 
+    private suspend fun tryShowLocked(activity: Activity): Boolean {
         return try {
             _events.tryEmit(ReviewEvent.Attempted)
 
@@ -112,8 +118,19 @@ class ReviewOrchestrator internal constructor(
             _events.tryEmit(ReviewEvent.Failed(t))
             _state.value = ReviewState.Error(t)
             false
+        }
+    }
+
+    // Uses tryLock intentionally: queued callers must be rejected as InFlight, not suspended.
+    private suspend inline fun <T> Mutex.withTryLock(
+        onLocked: () -> T,
+        action: suspend () -> T,
+    ): T {
+        if (!tryLock()) return onLocked()
+        return try {
+            action()
         } finally {
-            mutex.unlock()
+            unlock()
         }
     }
 
