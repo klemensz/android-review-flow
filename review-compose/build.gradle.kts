@@ -95,10 +95,14 @@ afterEvaluate {
                 )
 
                 credentials {
-                    username = providers.gradleProperty("OSSRH_USERNAME")
+                    username = providers.gradleProperty("MAVEN_CENTRAL_USERNAME")
+                        .orElse(providers.gradleProperty("OSSRH_USERNAME"))
+                        .orElse(providers.environmentVariable("MAVEN_CENTRAL_USERNAME"))
                         .orElse(providers.environmentVariable("OSSRH_USERNAME"))
                         .orNull
-                    password = providers.gradleProperty("OSSRH_PASSWORD")
+                    password = providers.gradleProperty("MAVEN_CENTRAL_PASSWORD")
+                        .orElse(providers.gradleProperty("OSSRH_PASSWORD"))
+                        .orElse(providers.environmentVariable("MAVEN_CENTRAL_PASSWORD"))
                         .orElse(providers.environmentVariable("OSSRH_PASSWORD"))
                         .orNull
                 }
@@ -114,12 +118,23 @@ signing {
     val signingKey = providers.gradleProperty("SIGNING_KEY")
         .orElse(providers.environmentVariable("SIGNING_KEY"))
         .orNull
+    val signingKeyFile = providers.gradleProperty("SIGNING_KEY_FILE")
+        .orElse(providers.environmentVariable("SIGNING_KEY_FILE"))
+        .orNull
     val signingPassword = providers.gradleProperty("SIGNING_PASSWORD")
         .orElse(providers.environmentVariable("SIGNING_PASSWORD"))
         .orNull
 
-    if (!signingKey.isNullOrBlank() && !signingPassword.isNullOrBlank()) {
-        useInMemoryPgpKeys(signingKeyId, signingKey, signingPassword)
-        sign(publishing.publications)
+    val resolvedKey = when {
+        !signingKey.isNullOrBlank() -> signingKey
+        !signingKeyFile.isNullOrBlank() -> file(signingKeyFile).readText(Charsets.UTF_8)
+        else -> null
+    }
+
+    if (!resolvedKey.isNullOrBlank() && !signingPassword.isNullOrBlank()) {
+        useInMemoryPgpKeys(resolvedKey, signingPassword)
+        afterEvaluate {
+            sign(publishing.publications)
+        }
     }
 }
