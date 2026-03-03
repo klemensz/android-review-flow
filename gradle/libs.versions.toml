@@ -9,6 +9,7 @@ androidxTestCore = "1.7.0"
 robolectric = "4.16.1"
 composeBom = "2026.02.00"
 activityCompose = "1.12.4"
+publishOnCentral = "9.1.13"
 
 [libraries]
 kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "coroutines" }
@@ -34,3 +35,4 @@ android-application = { id = "com.android.application", version.ref = "agp" }
 android-library = { id = "com.android.library", version.ref = "agp" }
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
+publish-on-central = { id = "org.danilopianini.publish-on-central", version.ref = "publishOnCentral" }

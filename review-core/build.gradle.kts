@@ -1,7 +1,7 @@
 plugins {
     alias(libs.plugins.android.library)
     alias(libs.plugins.kotlin.android)
-    id("maven-publish")
+    alias(libs.plugins.publish.on.central)
     id("signing")
 }
 
@@ -49,6 +49,11 @@ dependencies {
     testImplementation(libs.robolectric)
 }
 
+publishOnCentral {
+    repoOwner.set(providers.gradleProperty("POM_DEVELOPER_ID").get())
+    projectDescription.set("Core orchestration module for ${providers.gradleProperty("POM_NAME").get()}.")
+}
+
 afterEvaluate {
     publishing {
         publications {
@@ -89,38 +94,10 @@ afterEvaluate {
             }
         }
 
-        repositories {
-            mavenLocal()
-
-            maven {
-                name = "MavenCentral"
-                val releaseUrl = providers.gradleProperty("MAVEN_CENTRAL_RELEASE_URL").get()
-                val snapshotUrl = providers.gradleProperty("MAVEN_CENTRAL_SNAPSHOT_URL").get()
-                url = uri(
-                    if (version.toString().endsWith("SNAPSHOT")) snapshotUrl else releaseUrl,
-                )
-
-                credentials {
-                    username = providers.gradleProperty("MAVEN_CENTRAL_USERNAME")
-                        .orElse(providers.gradleProperty("OSSRH_USERNAME"))
-                        .orElse(providers.environmentVariable("MAVEN_CENTRAL_USERNAME"))
-                        .orElse(providers.environmentVariable("OSSRH_USERNAME"))
-                        .orNull
-                    password = providers.gradleProperty("MAVEN_CENTRAL_PASSWORD")
-                        .orElse(providers.gradleProperty("OSSRH_PASSWORD"))
-                        .orElse(providers.environmentVariable("MAVEN_CENTRAL_PASSWORD"))
-                        .orElse(providers.environmentVariable("OSSRH_PASSWORD"))
-                        .orNull
-                }
-            }
-        }
     }
 }
 
 signing {
-    val signingKeyId = providers.gradleProperty("SIGNING_KEY_ID")
-        .orElse(providers.environmentVariable("SIGNING_KEY_ID"))
-        .orNull
     val signingKey = providers.gradleProperty("SIGNING_KEY")
         .orElse(providers.environmentVariable("SIGNING_KEY"))
         .orNull

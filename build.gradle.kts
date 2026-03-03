@@ -12,3 +12,12 @@ subprojects {
     group = rootProject.group
     version = rootProject.version
 }
+
+tasks.register("releaseToMavenCentralPortal") {
+    group = "publishing"
+    description = "Publishes and releases review-core and review-compose via Maven Central Portal."
+    dependsOn(
+        ":review-core:releaseMavenCentralPortalPublication",
+        ":review-compose:releaseMavenCentralPortalPublication",
+    )
+}
