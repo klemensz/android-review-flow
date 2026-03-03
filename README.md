@@ -41,13 +41,9 @@ The official Play Core In-App Review API is:
 
 ---
 
-## Installation (Coming Soon)
+## Installation
 
-Maven Central coordinates will be published soon.
-Until then, use the modules via local source/composite build.
-
-<!--
-Add Maven Central and the dependency coordinates:
+Add Maven Central:
 
 ```kotlin
 repositories {
@@ -56,7 +52,7 @@ repositories {
 }
 ```
 
-Core only:
+Core:
 
 ```kotlin
 implementation("com.zleptnig:reviewflow-core:0.1.0")
@@ -68,8 +64,7 @@ Compose integration:
 implementation("com.zleptnig:reviewflow-compose:0.1.0")
 ```
 
-For local development, you can still include modules manually or via composite build.
--->
+`reviewflow-compose` depends on `reviewflow-core`, so you only need to add one of them based on your use case.
 
 ---
 
