@@ -269,11 +269,16 @@ It only guarantees correct orchestration.
 
 ## Publishing (Maintainers)
 
-Release instructions are documented in [`RELEASING.md`](RELEASING.md).
-For a quick local check:
+Quick local check:
 
 ```bash
-./gradlew :review-core:publishReleasePublicationToMavenLocal :review-compose:publishReleasePublicationToMavenLocal
+./gradlew :review-core:publishAllPublicationsToProjectLocalRepository :review-compose:publishAllPublicationsToProjectLocalRepository
+```
+
+Release both modules to Maven Central Portal:
+
+```bash
+./gradlew releaseToMavenCentralPortal
 ```
 
 ---
