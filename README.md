@@ -1,7 +1,9 @@
 # ReviewFlow
 
-Coroutine-first In-App Review orchestration for Android  
-with optional Jetpack Compose integration.
+[![Maven Central](https://img.shields.io/maven-central/v/com.zleptnig/reviewflow-core?label=reviewflow-core)](https://central.sonatype.com/artifact/com.zleptnig/reviewflow-core)
+[![Maven Central](https://img.shields.io/maven-central/v/com.zleptnig/reviewflow-compose?label=reviewflow-compose)](https://central.sonatype.com/artifact/com.zleptnig/reviewflow-compose)
+
+Coroutine-first In-App Review orchestration for Android with optional Jetpack Compose integration.
 
 > Show the Play Store review dialog at the right moment — safely, deterministically, and without callback hell.
 
