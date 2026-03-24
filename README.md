@@ -7,11 +7,13 @@ Coroutine-first In-App Review orchestration for Android with optional Jetpack Co
 
 > Show the Play Store review dialog at the right moment — safely, deterministically, and without callback hell.
 
+A thin orchestration layer on top of Play Core for rules, concurrency safety, and observability.
+
 ---
 
 ## Why?
 
-The official Play Core In-App Review API is:
+The official [Play Core In-App Review API](https://developer.android.com/guide/playcore/in-app-review) is:
 
 - callback / Task based
 - hard to test
@@ -84,11 +86,11 @@ implementation("com.zleptnig:reviewflow-compose:0.1.0")
 ### 1. Create orchestrator
 
 ```kotlin
-val reviewOrchestrator = ReviewOrchestrator.create(context)
+val orchestrator = ReviewOrchestrator.create(context)
 
 // Call once per cold start:
 lifecycleScope.launch {
-    reviewOrchestrator.onAppStart()
+    orchestrator.onAppStart()
 }
 ```
 
@@ -100,7 +102,7 @@ After meaningful user actions:
 
 ```kotlin
 lifecycleScope.launch {
-    reviewOrchestrator.onSuccessMoment()
+    orchestrator.onSuccessMoment()
 }
 ```
 
@@ -116,7 +118,7 @@ Examples:
 
 ```kotlin
 lifecycleScope.launch {
-    val launched = reviewOrchestrator.tryShow(activity)
+    val launched = orchestrator.tryShow(activity)
     if (!launched) {
         // Rule checks failed, another call is in-flight, or request failed.
     }
@@ -213,10 +215,12 @@ ReviewOrchestrator.create(
 
 ---
 
-## Observing state
+## Observing State and Events
+
+Use `state` for current status and `events` for one-off diagnostics.
 
 ```kotlin
-reviewOrchestrator.state.collect { state ->
+orchestrator.state.collect { state ->
     when (state) {
         is ReviewState.Ready -> { }
         is ReviewState.Showing -> { }
@@ -229,7 +233,7 @@ reviewOrchestrator.state.collect { state ->
 Events:
 
 ```kotlin
-reviewOrchestrator.events.collect { event ->
+orchestrator.events.collect { event ->
     // analytics or debugging
 }
 ```
@@ -239,8 +243,8 @@ reviewOrchestrator.events.collect { event ->
 ## Testing
 
 Use fakes:
-- FakeReviewClient
-- FakeClock
+- fake `ReviewClient`
+- fake `Clock`
 
 Do NOT test actual dialog appearance — Google controls that.
 
@@ -252,8 +256,8 @@ Test state & event behavior instead.
 
 | Module | Description |
 | --- | --- |
-| review-core | orchestration logic |
-| review-compose | Compose integration |
+| review-core | orchestration logic, rules, persistence, and Play Core integration |
+| review-compose | Compose helpers such as `rememberReviewOrchestrator()` and `ReviewEffect` |
 
 ---
 
