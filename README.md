@@ -107,6 +107,7 @@ lifecycleScope.launch {
 ```
 
 Examples:
+
 - user completed a task
 - user exported data
 - trip saved
@@ -177,6 +178,7 @@ ReviewEffect(
 `ReviewEffect` targets a different use case.
 
 When to use which:
+
 - Direct button action: user explicitly taps "Rate app" and you want the shortest flow.
 - `ReviewEffect`: trigger comes from state/events (for example, a one-shot ViewModel event).
 - The `sample-app` demonstrates both patterns side by side (`simple` and `effect` buttons).
@@ -195,6 +197,7 @@ When to use which:
 ## Rules
 
 Default rules:
+
 - minimum app starts: 3
 - minimum success moments: 1
 - cooldown: 30 days
@@ -222,10 +225,10 @@ Use `state` for current status and `events` for one-off diagnostics.
 ```kotlin
 orchestrator.state.collect { state ->
     when (state) {
-        is ReviewState.Ready -> { }
-        is ReviewState.Showing -> { }
-        is ReviewState.Done -> { }
-        is ReviewState.Error -> { }
+        is ReviewState.Ready -> {}
+        is ReviewState.Showing -> {}
+        is ReviewState.Done -> {}
+        is ReviewState.Error -> {}
     }
 }
 ```
@@ -243,6 +246,7 @@ orchestrator.events.collect { event ->
 ## Testing
 
 Use fakes:
+
 - fake `ReviewClient`
 - fake `Clock`
 
@@ -254,9 +258,9 @@ Test state & event behavior instead.
 
 ## Modules
 
-| Module | Description |
-| --- | --- |
-| review-core | orchestration logic, rules, persistence, and Play Core integration |
+| Module         | Description                                                               |
+|----------------|---------------------------------------------------------------------------|
+| review-core    | orchestration logic, rules, persistence, and Play Core integration        |
 | review-compose | Compose helpers such as `rememberReviewOrchestrator()` and `ReviewEffect` |
 
 ---
@@ -264,6 +268,7 @@ Test state & event behavior instead.
 ## Philosophy
 
 This library intentionally:
+
 - does not guarantee dialog appearance
 - does not bypass Play policies
 - does not track users
@@ -286,6 +291,8 @@ Release both modules to Maven Central Portal:
 ```bash
 ./gradlew releaseToMavenCentralPortal
 ```
+
+Maintainers must follow the complete preparation, validation, and tagging procedure in [RELEASING.md](RELEASING.md).
 
 ---
 

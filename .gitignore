@@ -73,3 +73,7 @@ jacoco.exec
 *.apk
 *.aab
 
+# ========================
+# Local AI tooling
+# ========================
+/.claude/settings.local.json
