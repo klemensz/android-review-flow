@@ -14,4 +14,5 @@ dependencyResolutionManagement {
 }
 
 rootProject.name = "reviewflow"
-include(":review-core", ":review-compose", ":sample-app")
+include(":reviewflow-core", ":review-compose", ":sample-app")
+project(":reviewflow-core").projectDir = file("review-core")

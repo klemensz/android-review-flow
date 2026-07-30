@@ -1,99 +1,103 @@
+import org.gradle.api.publish.maven.MavenPublication
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+
 plugins {
-    alias(libs.plugins.android.library)
-    alias(libs.plugins.kotlin.android)
+    alias(libs.plugins.kotlin.multiplatform)
+    alias(libs.plugins.android.kotlin.multiplatform.library)
     alias(libs.plugins.publish.on.central)
     id("signing")
 }
 
-android {
-    namespace = "com.zleptnig.reviewflow.core"
-    compileSdk = 36
+kotlin {
+    @OptIn(org.jetbrains.kotlin.gradle.dsl.abi.ExperimentalAbiValidation::class)
+    abiValidation {
+        enabled.set(true)
+    }
 
-    defaultConfig {
+    android {
+        namespace = "com.zleptnig.reviewflow.core"
+        compileSdk = 36
         minSdk = 23
-        consumerProguardFiles("consumer-rules.pro")
-    }
 
-    compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_17
-        targetCompatibility = JavaVersion.VERSION_17
-    }
+        withHostTestBuilder {}.configure {}
 
-    publishing {
-        singleVariant("release") {
-            withSourcesJar()
-            withJavadocJar()
+        compilerOptions {
+            jvmTarget.set(JvmTarget.JVM_17)
+        }
+
+        optimization {
+            consumerKeepRules.apply {
+                publish = true
+                file("consumer-rules.pro")
+            }
         }
     }
-}
 
-kotlin {
-    compilerOptions {
-        jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17)
+    listOf(
+        iosArm64(),
+        iosSimulatorArm64(),
+        iosX64(),
+    ).forEach { iosTarget ->
+        iosTarget.binaries.framework {
+            baseName = "ReviewFlowCore"
+            isStatic = true
+        }
     }
-}
 
-dependencies {
-    implementation(libs.kotlinx.coroutines.core)
-    implementation(libs.kotlinx.coroutines.android)
-    implementation(libs.kotlinx.coroutines.play.services)
-
-    implementation(libs.androidx.datastore.preferences)
-
-    implementation(libs.google.play.review)
-    implementation(libs.google.play.review.ktx)
-
-    testImplementation(libs.junit4)
-    testImplementation(libs.kotlinx.coroutines.test)
-    testImplementation(libs.androidx.test.core)
-    testImplementation(libs.robolectric)
+    sourceSets {
+        commonMain.dependencies {
+            implementation(libs.kotlinx.coroutines.core)
+        }
+        commonTest.dependencies {
+            implementation(kotlin("test"))
+            implementation(libs.kotlinx.coroutines.test)
+        }
+        androidMain.dependencies {
+            implementation(libs.kotlinx.coroutines.android)
+            implementation(libs.kotlinx.coroutines.play.services)
+            implementation(libs.androidx.datastore.preferences)
+            implementation(libs.google.play.review)
+            implementation(libs.google.play.review.ktx)
+        }
+        getByName("androidHostTest").dependencies {
+            implementation(libs.junit4)
+            implementation(libs.kotlinx.coroutines.test)
+            implementation(libs.androidx.test.core)
+            implementation(libs.robolectric)
+        }
+    }
 }
 
 publishOnCentral {
     repoOwner.set(providers.gradleProperty("POM_DEVELOPER_ID").get())
-    projectDescription.set("Core orchestration module for ${providers.gradleProperty("POM_NAME").get()}.")
+    projectDescription.set("Multiplatform review orchestration for Android and iOS.")
+    licenseName.set(providers.gradleProperty("POM_LICENSE_NAME").get())
+    licenseUrl.set(providers.gradleProperty("POM_LICENSE_URL").get())
 }
 
 afterEvaluate {
     publishing {
-        publications {
-            create<MavenPublication>("release") {
-                from(components["release"])
+        publications.withType<MavenPublication>().configureEach {
+            pom {
+                name.set("${providers.gradleProperty("POM_NAME").get()} Core")
+                description.set("Multiplatform review orchestration for Android and iOS.")
+                url.set(providers.gradleProperty("POM_URL").get())
 
-                groupId = project.group.toString()
-                artifactId = "reviewflow-core"
-                version = project.version.toString()
+                scm {
+                    url.set(providers.gradleProperty("POM_SCM_URL").get())
+                    connection.set(providers.gradleProperty("POM_SCM_CONNECTION").get())
+                    developerConnection.set(providers.gradleProperty("POM_SCM_DEV_CONNECTION").get())
+                }
 
-                pom {
-                    name.set("${providers.gradleProperty("POM_NAME").get()} Core")
-                    description.set("Core orchestration module for ${providers.gradleProperty("POM_NAME").get()}.")
-                    url.set(providers.gradleProperty("POM_URL").get())
-
-                    licenses {
-                        license {
-                            name.set(providers.gradleProperty("POM_LICENSE_NAME").get())
-                            url.set(providers.gradleProperty("POM_LICENSE_URL").get())
-                            distribution.set(providers.gradleProperty("POM_LICENSE_DIST").get())
-                        }
-                    }
-
-                    scm {
-                        url.set(providers.gradleProperty("POM_SCM_URL").get())
-                        connection.set(providers.gradleProperty("POM_SCM_CONNECTION").get())
-                        developerConnection.set(providers.gradleProperty("POM_SCM_DEV_CONNECTION").get())
-                    }
-
-                    developers {
-                        developer {
-                            id.set(providers.gradleProperty("POM_DEVELOPER_ID").get())
-                            name.set(providers.gradleProperty("POM_DEVELOPER_NAME").get())
-                            url.set(providers.gradleProperty("POM_DEVELOPER_URL").get())
-                        }
+                developers {
+                    developer {
+                        id.set(providers.gradleProperty("POM_DEVELOPER_ID").get())
+                        name.set(providers.gradleProperty("POM_DEVELOPER_NAME").get())
+                        url.set(providers.gradleProperty("POM_DEVELOPER_URL").get())
                     }
                 }
             }
         }
-
     }
 }
 

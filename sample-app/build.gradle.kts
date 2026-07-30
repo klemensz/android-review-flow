@@ -33,7 +33,7 @@ kotlin {
 }
 
 dependencies {
-    implementation(project(":review-core"))
+    implementation(project(":reviewflow-core"))
     implementation(project(":review-compose"))
 
     implementation(platform(libs.androidx.compose.bom))

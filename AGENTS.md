@@ -1,13 +1,13 @@
 # AGENTS.md — Project Rules for AI-Assisted Contributions
 
-This repository contains an Android In-App Review orchestration library with a coroutine/Flow-first API.
+This repository contains a Kotlin Multiplatform In-App Review orchestration library with a coroutine/Flow-first API.
 Changes must preserve structured concurrency, Flow semantics, and public API stability.
 
 ## Project structure
 
 - `review-core`:
-    - Android-only but UI-toolkit-agnostic (no Compose dependency).
-    - Contains orchestration logic, persistence, and Play Core integration.
+    - Kotlin Multiplatform and UI-toolkit-agnostic (no Compose dependency).
+    - Contains shared orchestration plus Android Play Core/DataStore and iOS StoreKit/UserDefaults adapters.
 - `review-compose`:
     - Jetpack Compose convenience layer only.
     - Must not contain business logic that belongs in `review-core`.
@@ -34,6 +34,7 @@ Changes must preserve structured concurrency, Flow semantics, and public API sta
 6. **Module boundaries**:
     - `review-core` must not depend on Compose.
     - `review-compose` can depend on `review-core`, not the other way around.
+    - Shared source sets must not expose Android or Apple framework types.
 
 ## Coding standards
 

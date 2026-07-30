@@ -3,45 +3,26 @@
 [![Maven Central](https://img.shields.io/maven-central/v/com.zleptnig/reviewflow-core?label=reviewflow-core)](https://central.sonatype.com/artifact/com.zleptnig/reviewflow-core)
 [![Maven Central](https://img.shields.io/maven-central/v/com.zleptnig/reviewflow-compose?label=reviewflow-compose)](https://central.sonatype.com/artifact/com.zleptnig/reviewflow-compose)
 
-Coroutine-first In-App Review orchestration for Android with optional Jetpack Compose integration.
+Coroutine-first In-App Review orchestration for Android and iOS, with optional Jetpack Compose integration.
 
-> Show the Play Store review dialog at the right moment — safely, deterministically, and without callback hell.
+> Submit the platform review request at the right moment — safely, deterministically, and without duplicating eligibility rules.
 
-A thin orchestration layer on top of Play Core for rules, concurrency safety, and observability.
-
----
-
-## Why?
-
-The official [Play Core In-App Review API](https://developer.android.com/guide/playcore/in-app-review) is:
-
-- callback / Task based
-- hard to test
-- easy to misuse
-- non-deterministic
-- missing timing & cooldown logic
-
-**ReviewFlow** provides a structured, Flow-based orchestration layer that:
-
-- prevents spamming the review dialog
-- handles cooldown & app-usage rules
-- guarantees single-flight execution
-- integrates cleanly with coroutines
-- works with and without Compose
+ReviewFlow adds testable rules, persistence, concurrency safety, and observability on top of Play Core and StoreKit.
 
 ---
 
 ## Features
 
+- Kotlin Multiplatform rules and state machine
+- Android and iOS persistence
 - Coroutine-first API
-- StateFlow + SharedFlow events
-- Cooldown & usage rules
+- StateFlow for state and non-replaying SharedFlow events
+- Cooldown and usage rules
 - Once-per-version support
-- Idempotent triggering
-- Testable (fake client + fake clock)
-- Compose integration module
-- No analytics / no tracking
-- No Play Store hacks
+- Immediate single-flight rejection for concurrent requests
+- Android source/binary compatibility with `0.1.x`
+- Optional Android Compose integration
+- No analytics, tracking, or phone-home behavior
 
 ---
 
@@ -56,34 +37,52 @@ repositories {
 }
 ```
 
-Core:
+Classic Android:
 
 ```kotlin
-implementation("com.zleptnig:reviewflow-core:0.1.0")
+implementation("com.zleptnig:reviewflow-core:0.2.0")
 ```
 
-Compose integration:
+Jetpack Compose:
 
 ```kotlin
-implementation("com.zleptnig:reviewflow-compose:0.1.0")
+implementation("com.zleptnig:reviewflow-compose:0.2.0")
 ```
 
-`reviewflow-compose` depends on `reviewflow-core`, so you only need to add one of them based on your use case.
+Kotlin Multiplatform:
+
+```kotlin
+kotlin {
+    sourceSets {
+        commonMain.dependencies {
+            implementation("com.zleptnig:reviewflow-core:0.2.0")
+        }
+    }
+}
+```
+
+The KMP root publication resolves the matching Android or iOS artifact automatically.
+`reviewflow-compose` already depends on `reviewflow-core`, so Android Compose projects normally
+only need the Compose dependency.
 
 ---
 
 ## Requirements
 
-- Android `minSdk 23` (library requirement)
-- `review-compose` currently targets a modern Compose stack and requires app projects to build with `compileSdk 36`
-- A foreground `Activity` is required when calling `tryShow(activity)`
-- For local source builds, use JDK 17 and the provided Gradle wrapper
+- Android `minSdk 23`
+- iOS 16 or newer for the documented `AppStore.requestReview(in:)` bridge
+- `review-compose` requires app projects to compile with `compileSdk 36`
+- A foreground `Activity` is required when calling the Android compatibility API
+  `tryShow(activity)`
+- Local source builds use JDK 17 and the provided Gradle wrapper
 
 ---
 
-## Quick Start
+## Android Quick Start
 
-### 1. Create orchestrator
+The Android API from `0.1.x` remains unchanged. A classic Android app does not need to enable KMP.
+
+### 1. Create the orchestrator
 
 ```kotlin
 val orchestrator = ReviewOrchestrator.create(context)
@@ -106,28 +105,101 @@ lifecycleScope.launch {
 }
 ```
 
-Examples:
+Examples include completing a task, exporting data, saving a trip, or finishing a purchase.
 
-- user completed a task
-- user exported data
-- trip saved
-- purchase finished
-
----
-
-### 3. Try showing review
+### 3. Try the review request
 
 ```kotlin
 lifecycleScope.launch {
-    val launched = orchestrator.tryShow(activity)
-    if (!launched) {
-        // Rule checks failed, another call is in-flight, or request failed.
-    }
+    val completed = orchestrator.tryShow(activity)
 }
 ```
 
-The dialog may or may not appear — this is controlled by Google Play.
-`tryShow(...) == true` means the review flow completed successfully, not that a visible dialog was guaranteed.
+`true` means the Play Core flow completed. Google Play may still suppress the dialog.
+`false` means a rule rejected the request, another request was already in flight, or the platform
+request failed.
+
+---
+
+## Multiplatform API
+
+`ReviewFlow` is the platform-neutral entry point:
+
+```kotlin
+class ReviewFlow(
+    presenter: ReviewPresenter,
+    store: ReviewStateStore,
+    versionProvider: AppVersionProvider,
+    rules: ReviewRules = ReviewRules(),
+    clock: Clock = SystemClock,
+)
+```
+
+It exposes:
+
+```kotlin
+val state: StateFlow<ReviewFlowState>
+val events: SharedFlow<ReviewFlowEvent>
+
+suspend fun onAppStart()
+suspend fun onSuccessMoment()
+suspend fun tryRequest(): Boolean
+```
+
+`ReviewFlowEvent.RequestCompleted` means the platform request API completed; it never claims that a dialog was visible.
+
+### Android factory
+
+Provide the foreground activity when using the new common API:
+
+```kotlin
+val reviewFlow = AndroidReviewFlow.create(
+    context = applicationContext,
+    activityProvider = currentActivityHolder::resumedActivity,
+)
+```
+
+`AndroidReviewFlow` retains the provider for the lifetime of the flow. An application-scoped flow
+must therefore use a lifecycle-aware holder backed by a `WeakReference`; do not capture an
+`Activity` directly with `{ this }`.
+
+If the provider returns `null`, `tryRequest()` returns `false`, emits `RequestUnavailable`, and
+consumes neither the cooldown nor the once-per-version request.
+
+### iOS StoreKit bridge
+
+StoreKit's modern request API is Swift-only. Export ReviewFlow from your consuming KMP framework, then install the small Swift bridge:
+
+```swift
+import StoreKit
+import UIKit
+import YourSharedFramework
+
+@available(iOS 16.0, *)
+final class StoreKitReviewRequest: @preconcurrency IosReviewRequest {
+    @MainActor
+    func requestReview() -> Bool {
+        guard let scene = UIApplication.shared.connectedScenes
+            .compactMap({ $0 as? UIWindowScene })
+            .first(where: { $0.activationState == .foregroundActive })
+        else {
+            return false
+        }
+
+        AppStore.requestReview(in: scene)
+        return true
+    }
+}
+
+@available(iOS 16.0, *)
+func makeReviewFlow() -> ReviewFlow {
+    IosReviewFlow.shared.create(request: StoreKitReviewRequest())
+}
+```
+
+The complete type-checked bridge is available in [`samples/ios/StoreKitReviewRequest.swift`](samples/ios/StoreKitReviewRequest.swift). The Kotlin adapter invokes it on the main dispatcher. ReviewFlow does not fall back to deprecated `SKStoreReviewController`.
+
+The iOS factory uses `NSUserDefaults` for counters and cooldown state. The once-per-version value comes from `CFBundleShortVersionString`, falling back to `CFBundleVersion`.
 
 ---
 
@@ -165,13 +237,14 @@ class MainActivity : ComponentActivity() {
 val orchestrator = rememberReviewOrchestrator()
 var trigger by remember { mutableStateOf(false) }
 
-// Example: set this from a one-shot ViewModel event.
-Button(onClick = { trigger = true }) { Text("Rate app") }
+Button(onClick = { trigger = true }) {
+    Text("Rate app")
+}
 
 ReviewEffect(
     orchestrator = orchestrator,
     trigger = trigger,
-    onConsumed = { trigger = false }
+    onConsumed = { trigger = false },
 )
 ```
 
@@ -206,93 +279,128 @@ Default rules:
 Custom:
 
 ```kotlin
-ReviewOrchestrator.create(
-    context,
+val orchestrator = ReviewOrchestrator.create(
+    context = context,
     rules = ReviewRules(
         minAppStarts = 5,
         minSuccessMoments = 3,
-        cooldown = 14.days
-    )
+        cooldown = 14.days,
+    ),
 )
 ```
+
+Behavior:
+
+- Rule order is once-per-version, app starts, success moments, then cooldown.
+- The cooldown begins before the platform request starts, so rapid retries still count.
+- A request exactly at the cooldown boundary is allowed.
+- A `null` app version bypasses once-per-version blocking.
+- Concurrent requests are rejected immediately with `SkipReason.InFlight`; they are not queued.
+- Cancellation is rethrown and resets state to `Idle`.
+- Platform failures do not mark a version as completed but still consume the cooldown.
+- Unavailable presentation contexts consume neither the cooldown nor the once-per-version request.
+- On Android, Play Core may complete as a no-op even though the request itself succeeded.
+- `SharedFlow` events have replay `0` and extra buffer capacity `16`.
+
+---
+
+## Android `0.1.x` Compatibility
+
+Existing Android code can upgrade by changing only the version:
+
+```kotlin
+implementation("com.zleptnig:reviewflow-core:0.2.0")
+```
+
+The following remain available:
+
+- `ReviewOrchestrator.create(context)`
+- `onAppStart()` and `onSuccessMoment()`
+- `tryShow(activity)`
+- custom `ReviewClient` implementations
+- `ReviewState.Ready(ReviewInfo)`
+- all existing `ReviewState`, `ReviewEvent`, and `SkipReason` types
+
+The legacy `ReviewEvent.Shown` name is retained for compatibility. It means the Play Core flow completed, not that a dialog was shown. New multiplatform integrations should observe `ReviewFlowEvent.RequestCompleted`.
+
+Android continues to use the existing DataStore name and keys, so counters, cooldowns, and once-per-version state survive the upgrade.
 
 ---
 
 ## Observing State and Events
 
-Use `state` for current status and `events` for one-off diagnostics.
+Use `state` for the current status and `events` for one-off diagnostics:
 
 ```kotlin
-orchestrator.state.collect { state ->
-    when (state) {
-        is ReviewState.Ready -> {}
-        is ReviewState.Showing -> {}
-        is ReviewState.Done -> {}
-        is ReviewState.Error -> {}
+lifecycleScope.launch {
+    orchestrator.state.collect { state ->
+        when (state) {
+            is ReviewState.Ready -> {}
+            is ReviewState.Showing -> {}
+            is ReviewState.Done -> {}
+            is ReviewState.Error -> {}
+            else -> {}
+        }
+    }
+}
+
+lifecycleScope.launch {
+    orchestrator.events.collect { event ->
+        // Diagnostics or application-owned analytics.
     }
 }
 ```
 
-Events:
-
-```kotlin
-orchestrator.events.collect { event ->
-    // analytics or debugging
-}
-```
+The multiplatform `ReviewFlow` exposes `StateFlow<ReviewFlowState>` and
+`SharedFlow<ReviewFlowEvent>` with the same state-versus-event distinction.
 
 ---
 
 ## Testing
 
-Use fakes:
+Common orchestration can be tested with:
 
-- fake `ReviewClient`
+- fake `ReviewPresenter`
+- in-memory `ReviewStateStore`
+- fake `AppVersionProvider`
 - fake `Clock`
 
-Do NOT test actual dialog appearance — Google controls that.
-
-Test state & event behavior instead.
+Android compatibility tests can continue using a fake `ReviewClient`. Do not test dialog appearance; Google Play and StoreKit control whether a dialog is visible.
 
 ---
 
 ## Modules
 
-| Module         | Description                                                               |
-|----------------|---------------------------------------------------------------------------|
-| review-core    | orchestration logic, rules, persistence, and Play Core integration        |
-| review-compose | Compose helpers such as `rememberReviewOrchestrator()` and `ReviewEffect` |
-
----
-
-## Philosophy
-
-This library intentionally:
-
-- does not guarantee dialog appearance
-- does not bypass Play policies
-- does not track users
-- does not include analytics SDKs
-
-It only guarantees correct orchestration.
+| Module                             | Description                                                                |
+|------------------------------------|----------------------------------------------------------------------------|
+| `review-core` (`:reviewflow-core`) | KMP orchestration, rules, persistence, Android Play Core, and iOS adapters |
+| `review-compose`                   | Android Compose helpers around the compatibility orchestrator              |
+| `sample-app`                       | Android integration and release-gating smoke tests                         |
 
 ---
 
 ## Publishing (Maintainers)
 
-Quick local check:
+Run the full release verification:
 
 ```bash
-./gradlew :review-core:publishAllPublicationsToProjectLocalRepository :review-compose:publishAllPublicationsToProjectLocalRepository
+./gradlew verifyMavenCentralRelease
 ```
 
-Release both modules to Maven Central Portal:
+Build all platform publications locally:
+
+```bash
+./gradlew :reviewflow-core:publishAllPublicationsToProjectLocalRepository \
+    :review-compose:publishAllPublicationsToProjectLocalRepository
+```
+
+Release both modules:
 
 ```bash
 ./gradlew releaseToMavenCentralPortal
 ```
 
-Maintainers must follow the complete preparation, validation, and tagging procedure in [RELEASING.md](RELEASING.md).
+Follow the complete procedure in [RELEASING.md](RELEASING.md).
 
 ---
 

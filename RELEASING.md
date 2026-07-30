@@ -1,12 +1,12 @@
 # Releasing
 
-This document describes how to publish `review-core` and `review-compose` to Maven Central using the Central Portal plugin flow.
+This document describes how to publish `reviewflow-core` and `reviewflow-compose` to Maven Central using the Central Portal plugin flow.
 
 ## Current coordinates
 
 - Group: `com.zleptnig`
 - Artifacts:
-    - `reviewflow-core`
+    - `reviewflow-core` KMP root plus Android and iOS target artifacts
     - `reviewflow-compose`
 - Version source: `VERSION_NAME` in `gradle.properties`
 
@@ -55,7 +55,7 @@ Do not put these into the project `gradle.properties`.
 
 1. Ensure working tree is clean.
 2. Update `VERSION_NAME` in `gradle.properties`.
-    - Example release: `0.1.0`
+    - Example release: `0.2.0`
     - This release flow is only for final versions, not `-SNAPSHOT` versions.
 3. Verify that the version has not already been published.
 4. Verify POM metadata values in `gradle.properties`:
@@ -76,7 +76,7 @@ The final release task enforces the same test gate. Run it separately only when 
 
 Root release tasks:
 
-- `verifyMavenCentralRelease`: runs unit tests for `review-core`, `review-compose`, and the `sample-app` integration smoke tests; no upload.
+- `verifyMavenCentralRelease`: runs common, Android, and iOS tests plus the ABI check for `reviewflow-core`, then the `reviewflow-compose` and `sample-app` tests; no upload.
 - `prepareMavenCentralRelease`: clears old release staging outputs and builds both signed deployment bundles; no upload.
 - `validateMavenCentralRelease`: uploads and validates both bundles without releasing them.
 - `releaseToMavenCentralPortal`: runs preparation, verification, validation, and release in one Gradle invocation.
@@ -100,13 +100,18 @@ No manual OSSRH staging API transfer step is required in this flow.
 Check Sonatype Central deployments and then verify Maven Central:
 
 - `https://repo1.maven.org/maven2/com/zleptnig/reviewflow-core/<version>/`
+- `https://repo1.maven.org/maven2/com/zleptnig/reviewflow-core-android/<version>/`
+- `https://repo1.maven.org/maven2/com/zleptnig/reviewflow-core-iosarm64/<version>/`
+- `https://repo1.maven.org/maven2/com/zleptnig/reviewflow-core-iossimulatorarm64/<version>/`
+- `https://repo1.maven.org/maven2/com/zleptnig/reviewflow-core-iosx64/<version>/`
 - `https://repo1.maven.org/maven2/com/zleptnig/reviewflow-compose/<version>/`
 
 ## 5) Tag and announce
 
 1. Verify that `HEAD` is still the commit that was published and that the working tree is clean.
-2. Create an annotated git tag for that commit, for example: `git tag -a v0.1.0 -m "ReviewFlow 0.1.0"`.
-3. Push the tag: `git push origin v0.1.0`.
+2. Create an annotated git tag for that commit, for example:
+   `git tag -a "v<version>" -m "ReviewFlow <version>"`.
+3. Push the tag: `git push origin "v<version>"`.
 4. Create release notes (breaking changes, migration hints, new features).
 
 ## Troubleshooting
@@ -122,10 +127,10 @@ Check Sonatype Central deployments and then verify Maven Central:
 - Failed or orphaned deployment:
   - Inspect the deployment and copy its ID from the Central Portal or Gradle output.
   - To drop a failed or validated deployment, run the module task with that module's deployment ID:
-    `./gradlew :review-core:dropMavenCentralPortalPublication -PpublishDeploymentId=<deployment-id>`
+    `./gradlew :reviewflow-core:dropMavenCentralPortalPublication -PpublishDeploymentId=<deployment-id>`
     (use the corresponding `review-compose` task for that module).
   - If a deployment was intentionally validated in an earlier invocation, release each module with its own ID:
-    `./gradlew :review-core:releaseMavenCentralPortalPublication -PpublishDeploymentId=<deployment-id>`
+    `./gradlew :reviewflow-core:releaseMavenCentralPortalPublication -PpublishDeploymentId=<deployment-id>`
     (repeat with the separate `review-compose` deployment ID).
 - Snapshot rejected:
   - This flow publishes final releases. Configure the separate Central Portal snapshot repository for `-SNAPSHOT` versions.
