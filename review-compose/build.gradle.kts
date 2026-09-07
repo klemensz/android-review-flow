@@ -36,7 +36,7 @@ kotlin {
 }
 
 dependencies {
-    api(project(":review-core"))
+    api(project(":reviewflow-core"))
 
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.compose.runtime)
@@ -46,6 +46,8 @@ dependencies {
 publishOnCentral {
     repoOwner.set(providers.gradleProperty("POM_DEVELOPER_ID").get())
     projectDescription.set("Compose integration module for ${providers.gradleProperty("POM_NAME").get()}.")
+    licenseName.set(providers.gradleProperty("POM_LICENSE_NAME").get())
+    licenseUrl.set(providers.gradleProperty("POM_LICENSE_URL").get())
 }
 
 afterEvaluate {
@@ -62,14 +64,6 @@ afterEvaluate {
                     name.set("${providers.gradleProperty("POM_NAME").get()} Compose")
                     description.set("Compose integration module for ${providers.gradleProperty("POM_NAME").get()}.")
                     url.set(providers.gradleProperty("POM_URL").get())
-
-                    licenses {
-                        license {
-                            name.set(providers.gradleProperty("POM_LICENSE_NAME").get())
-                            url.set(providers.gradleProperty("POM_LICENSE_URL").get())
-                            distribution.set(providers.gradleProperty("POM_LICENSE_DIST").get())
-                        }
-                    }
 
                     scm {
                         url.set(providers.gradleProperty("POM_SCM_URL").get())

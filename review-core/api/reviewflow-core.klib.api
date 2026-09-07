@@ -1,0 +1,244 @@
+// Klib ABI Dump
+// Targets: [iosArm64, iosSimulatorArm64, iosX64]
+// Rendering settings:
+// - Signature version: 2
+// - Show manifest properties: true
+// - Show declarations: true
+
+// Library unique name: <com.zleptnig:reviewflow-core>
+abstract interface com.zleptnig.reviewflow.core/AppVersionProvider { // com.zleptnig.reviewflow.core/AppVersionProvider|null[0]
+    abstract fun versionName(): kotlin/String? // com.zleptnig.reviewflow.core/AppVersionProvider.versionName|versionName(){}[0]
+}
+
+abstract interface com.zleptnig.reviewflow.core/Clock { // com.zleptnig.reviewflow.core/Clock|null[0]
+    abstract fun nowEpochMs(): kotlin/Long // com.zleptnig.reviewflow.core/Clock.nowEpochMs|nowEpochMs(){}[0]
+}
+
+abstract interface com.zleptnig.reviewflow.core/IosReviewRequest { // com.zleptnig.reviewflow.core/IosReviewRequest|null[0]
+    abstract fun requestReview(): kotlin/Boolean // com.zleptnig.reviewflow.core/IosReviewRequest.requestReview|requestReview(){}[0]
+}
+
+abstract interface com.zleptnig.reviewflow.core/ReviewPresenter { // com.zleptnig.reviewflow.core/ReviewPresenter|null[0]
+    abstract suspend fun requestReview(): com.zleptnig.reviewflow.core/ReviewPresentationResult // com.zleptnig.reviewflow.core/ReviewPresenter.requestReview|requestReview(){}[0]
+}
+
+abstract interface com.zleptnig.reviewflow.core/ReviewStateStore { // com.zleptnig.reviewflow.core/ReviewStateStore|null[0]
+    abstract suspend fun read(): com.zleptnig.reviewflow.core/ReviewSnapshot // com.zleptnig.reviewflow.core/ReviewStateStore.read|read(){}[0]
+    abstract suspend fun update(kotlin/Function1<com.zleptnig.reviewflow.core/ReviewSnapshot, com.zleptnig.reviewflow.core/ReviewSnapshot>) // com.zleptnig.reviewflow.core/ReviewStateStore.update|update(kotlin.Function1<com.zleptnig.reviewflow.core.ReviewSnapshot,com.zleptnig.reviewflow.core.ReviewSnapshot>){}[0]
+}
+
+sealed interface com.zleptnig.reviewflow.core/ReviewFlowEvent { // com.zleptnig.reviewflow.core/ReviewFlowEvent|null[0]
+    final class Failed : com.zleptnig.reviewflow.core/ReviewFlowEvent { // com.zleptnig.reviewflow.core/ReviewFlowEvent.Failed|null[0]
+        constructor <init>(kotlin/Throwable) // com.zleptnig.reviewflow.core/ReviewFlowEvent.Failed.<init>|<init>(kotlin.Throwable){}[0]
+
+        final val throwable // com.zleptnig.reviewflow.core/ReviewFlowEvent.Failed.throwable|{}throwable[0]
+            final fun <get-throwable>(): kotlin/Throwable // com.zleptnig.reviewflow.core/ReviewFlowEvent.Failed.throwable.<get-throwable>|<get-throwable>(){}[0]
+
+        final fun component1(): kotlin/Throwable // com.zleptnig.reviewflow.core/ReviewFlowEvent.Failed.component1|component1(){}[0]
+        final fun copy(kotlin/Throwable = ...): com.zleptnig.reviewflow.core/ReviewFlowEvent.Failed // com.zleptnig.reviewflow.core/ReviewFlowEvent.Failed.copy|copy(kotlin.Throwable){}[0]
+        final fun equals(kotlin/Any?): kotlin/Boolean // com.zleptnig.reviewflow.core/ReviewFlowEvent.Failed.equals|equals(kotlin.Any?){}[0]
+        final fun hashCode(): kotlin/Int // com.zleptnig.reviewflow.core/ReviewFlowEvent.Failed.hashCode|hashCode(){}[0]
+        final fun toString(): kotlin/String // com.zleptnig.reviewflow.core/ReviewFlowEvent.Failed.toString|toString(){}[0]
+    }
+
+    final class Skipped : com.zleptnig.reviewflow.core/ReviewFlowEvent { // com.zleptnig.reviewflow.core/ReviewFlowEvent.Skipped|null[0]
+        constructor <init>(com.zleptnig.reviewflow.core/SkipReason) // com.zleptnig.reviewflow.core/ReviewFlowEvent.Skipped.<init>|<init>(com.zleptnig.reviewflow.core.SkipReason){}[0]
+
+        final val reason // com.zleptnig.reviewflow.core/ReviewFlowEvent.Skipped.reason|{}reason[0]
+            final fun <get-reason>(): com.zleptnig.reviewflow.core/SkipReason // com.zleptnig.reviewflow.core/ReviewFlowEvent.Skipped.reason.<get-reason>|<get-reason>(){}[0]
+
+        final fun component1(): com.zleptnig.reviewflow.core/SkipReason // com.zleptnig.reviewflow.core/ReviewFlowEvent.Skipped.component1|component1(){}[0]
+        final fun copy(com.zleptnig.reviewflow.core/SkipReason = ...): com.zleptnig.reviewflow.core/ReviewFlowEvent.Skipped // com.zleptnig.reviewflow.core/ReviewFlowEvent.Skipped.copy|copy(com.zleptnig.reviewflow.core.SkipReason){}[0]
+        final fun equals(kotlin/Any?): kotlin/Boolean // com.zleptnig.reviewflow.core/ReviewFlowEvent.Skipped.equals|equals(kotlin.Any?){}[0]
+        final fun hashCode(): kotlin/Int // com.zleptnig.reviewflow.core/ReviewFlowEvent.Skipped.hashCode|hashCode(){}[0]
+        final fun toString(): kotlin/String // com.zleptnig.reviewflow.core/ReviewFlowEvent.Skipped.toString|toString(){}[0]
+    }
+
+    final object Attempted : com.zleptnig.reviewflow.core/ReviewFlowEvent { // com.zleptnig.reviewflow.core/ReviewFlowEvent.Attempted|null[0]
+        final fun equals(kotlin/Any?): kotlin/Boolean // com.zleptnig.reviewflow.core/ReviewFlowEvent.Attempted.equals|equals(kotlin.Any?){}[0]
+        final fun hashCode(): kotlin/Int // com.zleptnig.reviewflow.core/ReviewFlowEvent.Attempted.hashCode|hashCode(){}[0]
+        final fun toString(): kotlin/String // com.zleptnig.reviewflow.core/ReviewFlowEvent.Attempted.toString|toString(){}[0]
+    }
+
+    final object RequestCompleted : com.zleptnig.reviewflow.core/ReviewFlowEvent { // com.zleptnig.reviewflow.core/ReviewFlowEvent.RequestCompleted|null[0]
+        final fun equals(kotlin/Any?): kotlin/Boolean // com.zleptnig.reviewflow.core/ReviewFlowEvent.RequestCompleted.equals|equals(kotlin.Any?){}[0]
+        final fun hashCode(): kotlin/Int // com.zleptnig.reviewflow.core/ReviewFlowEvent.RequestCompleted.hashCode|hashCode(){}[0]
+        final fun toString(): kotlin/String // com.zleptnig.reviewflow.core/ReviewFlowEvent.RequestCompleted.toString|toString(){}[0]
+    }
+
+    final object RequestUnavailable : com.zleptnig.reviewflow.core/ReviewFlowEvent { // com.zleptnig.reviewflow.core/ReviewFlowEvent.RequestUnavailable|null[0]
+        final fun equals(kotlin/Any?): kotlin/Boolean // com.zleptnig.reviewflow.core/ReviewFlowEvent.RequestUnavailable.equals|equals(kotlin.Any?){}[0]
+        final fun hashCode(): kotlin/Int // com.zleptnig.reviewflow.core/ReviewFlowEvent.RequestUnavailable.hashCode|hashCode(){}[0]
+        final fun toString(): kotlin/String // com.zleptnig.reviewflow.core/ReviewFlowEvent.RequestUnavailable.toString|toString(){}[0]
+    }
+}
+
+sealed interface com.zleptnig.reviewflow.core/ReviewFlowState { // com.zleptnig.reviewflow.core/ReviewFlowState|null[0]
+    final class Error : com.zleptnig.reviewflow.core/ReviewFlowState { // com.zleptnig.reviewflow.core/ReviewFlowState.Error|null[0]
+        constructor <init>(kotlin/Throwable) // com.zleptnig.reviewflow.core/ReviewFlowState.Error.<init>|<init>(kotlin.Throwable){}[0]
+
+        final val throwable // com.zleptnig.reviewflow.core/ReviewFlowState.Error.throwable|{}throwable[0]
+            final fun <get-throwable>(): kotlin/Throwable // com.zleptnig.reviewflow.core/ReviewFlowState.Error.throwable.<get-throwable>|<get-throwable>(){}[0]
+
+        final fun component1(): kotlin/Throwable // com.zleptnig.reviewflow.core/ReviewFlowState.Error.component1|component1(){}[0]
+        final fun copy(kotlin/Throwable = ...): com.zleptnig.reviewflow.core/ReviewFlowState.Error // com.zleptnig.reviewflow.core/ReviewFlowState.Error.copy|copy(kotlin.Throwable){}[0]
+        final fun equals(kotlin/Any?): kotlin/Boolean // com.zleptnig.reviewflow.core/ReviewFlowState.Error.equals|equals(kotlin.Any?){}[0]
+        final fun hashCode(): kotlin/Int // com.zleptnig.reviewflow.core/ReviewFlowState.Error.hashCode|hashCode(){}[0]
+        final fun toString(): kotlin/String // com.zleptnig.reviewflow.core/ReviewFlowState.Error.toString|toString(){}[0]
+    }
+
+    final object Done : com.zleptnig.reviewflow.core/ReviewFlowState { // com.zleptnig.reviewflow.core/ReviewFlowState.Done|null[0]
+        final fun equals(kotlin/Any?): kotlin/Boolean // com.zleptnig.reviewflow.core/ReviewFlowState.Done.equals|equals(kotlin.Any?){}[0]
+        final fun hashCode(): kotlin/Int // com.zleptnig.reviewflow.core/ReviewFlowState.Done.hashCode|hashCode(){}[0]
+        final fun toString(): kotlin/String // com.zleptnig.reviewflow.core/ReviewFlowState.Done.toString|toString(){}[0]
+    }
+
+    final object Idle : com.zleptnig.reviewflow.core/ReviewFlowState { // com.zleptnig.reviewflow.core/ReviewFlowState.Idle|null[0]
+        final fun equals(kotlin/Any?): kotlin/Boolean // com.zleptnig.reviewflow.core/ReviewFlowState.Idle.equals|equals(kotlin.Any?){}[0]
+        final fun hashCode(): kotlin/Int // com.zleptnig.reviewflow.core/ReviewFlowState.Idle.hashCode|hashCode(){}[0]
+        final fun toString(): kotlin/String // com.zleptnig.reviewflow.core/ReviewFlowState.Idle.toString|toString(){}[0]
+    }
+
+    final object Requesting : com.zleptnig.reviewflow.core/ReviewFlowState { // com.zleptnig.reviewflow.core/ReviewFlowState.Requesting|null[0]
+        final fun equals(kotlin/Any?): kotlin/Boolean // com.zleptnig.reviewflow.core/ReviewFlowState.Requesting.equals|equals(kotlin.Any?){}[0]
+        final fun hashCode(): kotlin/Int // com.zleptnig.reviewflow.core/ReviewFlowState.Requesting.hashCode|hashCode(){}[0]
+        final fun toString(): kotlin/String // com.zleptnig.reviewflow.core/ReviewFlowState.Requesting.toString|toString(){}[0]
+    }
+
+    final object Unavailable : com.zleptnig.reviewflow.core/ReviewFlowState { // com.zleptnig.reviewflow.core/ReviewFlowState.Unavailable|null[0]
+        final fun equals(kotlin/Any?): kotlin/Boolean // com.zleptnig.reviewflow.core/ReviewFlowState.Unavailable.equals|equals(kotlin.Any?){}[0]
+        final fun hashCode(): kotlin/Int // com.zleptnig.reviewflow.core/ReviewFlowState.Unavailable.hashCode|hashCode(){}[0]
+        final fun toString(): kotlin/String // com.zleptnig.reviewflow.core/ReviewFlowState.Unavailable.toString|toString(){}[0]
+    }
+}
+
+sealed interface com.zleptnig.reviewflow.core/ReviewPresentationResult { // com.zleptnig.reviewflow.core/ReviewPresentationResult|null[0]
+    final class Failed : com.zleptnig.reviewflow.core/ReviewPresentationResult { // com.zleptnig.reviewflow.core/ReviewPresentationResult.Failed|null[0]
+        constructor <init>(kotlin/Throwable) // com.zleptnig.reviewflow.core/ReviewPresentationResult.Failed.<init>|<init>(kotlin.Throwable){}[0]
+
+        final val throwable // com.zleptnig.reviewflow.core/ReviewPresentationResult.Failed.throwable|{}throwable[0]
+            final fun <get-throwable>(): kotlin/Throwable // com.zleptnig.reviewflow.core/ReviewPresentationResult.Failed.throwable.<get-throwable>|<get-throwable>(){}[0]
+
+        final fun component1(): kotlin/Throwable // com.zleptnig.reviewflow.core/ReviewPresentationResult.Failed.component1|component1(){}[0]
+        final fun copy(kotlin/Throwable = ...): com.zleptnig.reviewflow.core/ReviewPresentationResult.Failed // com.zleptnig.reviewflow.core/ReviewPresentationResult.Failed.copy|copy(kotlin.Throwable){}[0]
+        final fun equals(kotlin/Any?): kotlin/Boolean // com.zleptnig.reviewflow.core/ReviewPresentationResult.Failed.equals|equals(kotlin.Any?){}[0]
+        final fun hashCode(): kotlin/Int // com.zleptnig.reviewflow.core/ReviewPresentationResult.Failed.hashCode|hashCode(){}[0]
+        final fun toString(): kotlin/String // com.zleptnig.reviewflow.core/ReviewPresentationResult.Failed.toString|toString(){}[0]
+    }
+
+    final object Completed : com.zleptnig.reviewflow.core/ReviewPresentationResult { // com.zleptnig.reviewflow.core/ReviewPresentationResult.Completed|null[0]
+        final fun equals(kotlin/Any?): kotlin/Boolean // com.zleptnig.reviewflow.core/ReviewPresentationResult.Completed.equals|equals(kotlin.Any?){}[0]
+        final fun hashCode(): kotlin/Int // com.zleptnig.reviewflow.core/ReviewPresentationResult.Completed.hashCode|hashCode(){}[0]
+        final fun toString(): kotlin/String // com.zleptnig.reviewflow.core/ReviewPresentationResult.Completed.toString|toString(){}[0]
+    }
+
+    final object Unavailable : com.zleptnig.reviewflow.core/ReviewPresentationResult { // com.zleptnig.reviewflow.core/ReviewPresentationResult.Unavailable|null[0]
+        final fun equals(kotlin/Any?): kotlin/Boolean // com.zleptnig.reviewflow.core/ReviewPresentationResult.Unavailable.equals|equals(kotlin.Any?){}[0]
+        final fun hashCode(): kotlin/Int // com.zleptnig.reviewflow.core/ReviewPresentationResult.Unavailable.hashCode|hashCode(){}[0]
+        final fun toString(): kotlin/String // com.zleptnig.reviewflow.core/ReviewPresentationResult.Unavailable.toString|toString(){}[0]
+    }
+}
+
+sealed interface com.zleptnig.reviewflow.core/SkipReason { // com.zleptnig.reviewflow.core/SkipReason|null[0]
+    final object AlreadyShownForThisVersion : com.zleptnig.reviewflow.core/SkipReason { // com.zleptnig.reviewflow.core/SkipReason.AlreadyShownForThisVersion|null[0]
+        final fun equals(kotlin/Any?): kotlin/Boolean // com.zleptnig.reviewflow.core/SkipReason.AlreadyShownForThisVersion.equals|equals(kotlin.Any?){}[0]
+        final fun hashCode(): kotlin/Int // com.zleptnig.reviewflow.core/SkipReason.AlreadyShownForThisVersion.hashCode|hashCode(){}[0]
+        final fun toString(): kotlin/String // com.zleptnig.reviewflow.core/SkipReason.AlreadyShownForThisVersion.toString|toString(){}[0]
+    }
+
+    final object CooldownActive : com.zleptnig.reviewflow.core/SkipReason { // com.zleptnig.reviewflow.core/SkipReason.CooldownActive|null[0]
+        final fun equals(kotlin/Any?): kotlin/Boolean // com.zleptnig.reviewflow.core/SkipReason.CooldownActive.equals|equals(kotlin.Any?){}[0]
+        final fun hashCode(): kotlin/Int // com.zleptnig.reviewflow.core/SkipReason.CooldownActive.hashCode|hashCode(){}[0]
+        final fun toString(): kotlin/String // com.zleptnig.reviewflow.core/SkipReason.CooldownActive.toString|toString(){}[0]
+    }
+
+    final object InFlight : com.zleptnig.reviewflow.core/SkipReason { // com.zleptnig.reviewflow.core/SkipReason.InFlight|null[0]
+        final fun equals(kotlin/Any?): kotlin/Boolean // com.zleptnig.reviewflow.core/SkipReason.InFlight.equals|equals(kotlin.Any?){}[0]
+        final fun hashCode(): kotlin/Int // com.zleptnig.reviewflow.core/SkipReason.InFlight.hashCode|hashCode(){}[0]
+        final fun toString(): kotlin/String // com.zleptnig.reviewflow.core/SkipReason.InFlight.toString|toString(){}[0]
+    }
+
+    final object NotEnoughAppStarts : com.zleptnig.reviewflow.core/SkipReason { // com.zleptnig.reviewflow.core/SkipReason.NotEnoughAppStarts|null[0]
+        final fun equals(kotlin/Any?): kotlin/Boolean // com.zleptnig.reviewflow.core/SkipReason.NotEnoughAppStarts.equals|equals(kotlin.Any?){}[0]
+        final fun hashCode(): kotlin/Int // com.zleptnig.reviewflow.core/SkipReason.NotEnoughAppStarts.hashCode|hashCode(){}[0]
+        final fun toString(): kotlin/String // com.zleptnig.reviewflow.core/SkipReason.NotEnoughAppStarts.toString|toString(){}[0]
+    }
+
+    final object NotEnoughSuccessMoments : com.zleptnig.reviewflow.core/SkipReason { // com.zleptnig.reviewflow.core/SkipReason.NotEnoughSuccessMoments|null[0]
+        final fun equals(kotlin/Any?): kotlin/Boolean // com.zleptnig.reviewflow.core/SkipReason.NotEnoughSuccessMoments.equals|equals(kotlin.Any?){}[0]
+        final fun hashCode(): kotlin/Int // com.zleptnig.reviewflow.core/SkipReason.NotEnoughSuccessMoments.hashCode|hashCode(){}[0]
+        final fun toString(): kotlin/String // com.zleptnig.reviewflow.core/SkipReason.NotEnoughSuccessMoments.toString|toString(){}[0]
+    }
+}
+
+final class com.zleptnig.reviewflow.core/IosStoreKitPresenter : com.zleptnig.reviewflow.core/ReviewPresenter { // com.zleptnig.reviewflow.core/IosStoreKitPresenter|null[0]
+    constructor <init>(com.zleptnig.reviewflow.core/IosReviewRequest) // com.zleptnig.reviewflow.core/IosStoreKitPresenter.<init>|<init>(com.zleptnig.reviewflow.core.IosReviewRequest){}[0]
+
+    final suspend fun requestReview(): com.zleptnig.reviewflow.core/ReviewPresentationResult // com.zleptnig.reviewflow.core/IosStoreKitPresenter.requestReview|requestReview(){}[0]
+}
+
+final class com.zleptnig.reviewflow.core/ReviewFlow { // com.zleptnig.reviewflow.core/ReviewFlow|null[0]
+    constructor <init>(com.zleptnig.reviewflow.core/ReviewPresenter, com.zleptnig.reviewflow.core/ReviewStateStore, com.zleptnig.reviewflow.core/AppVersionProvider, com.zleptnig.reviewflow.core/ReviewRules = ..., com.zleptnig.reviewflow.core/Clock = ...) // com.zleptnig.reviewflow.core/ReviewFlow.<init>|<init>(com.zleptnig.reviewflow.core.ReviewPresenter;com.zleptnig.reviewflow.core.ReviewStateStore;com.zleptnig.reviewflow.core.AppVersionProvider;com.zleptnig.reviewflow.core.ReviewRules;com.zleptnig.reviewflow.core.Clock){}[0]
+
+    final val events // com.zleptnig.reviewflow.core/ReviewFlow.events|{}events[0]
+        final fun <get-events>(): kotlinx.coroutines.flow/SharedFlow<com.zleptnig.reviewflow.core/ReviewFlowEvent> // com.zleptnig.reviewflow.core/ReviewFlow.events.<get-events>|<get-events>(){}[0]
+    final val state // com.zleptnig.reviewflow.core/ReviewFlow.state|{}state[0]
+        final fun <get-state>(): kotlinx.coroutines.flow/StateFlow<com.zleptnig.reviewflow.core/ReviewFlowState> // com.zleptnig.reviewflow.core/ReviewFlow.state.<get-state>|<get-state>(){}[0]
+
+    final suspend fun onAppStart() // com.zleptnig.reviewflow.core/ReviewFlow.onAppStart|onAppStart(){}[0]
+    final suspend fun onSuccessMoment() // com.zleptnig.reviewflow.core/ReviewFlow.onSuccessMoment|onSuccessMoment(){}[0]
+    final suspend fun tryRequest(): kotlin/Boolean // com.zleptnig.reviewflow.core/ReviewFlow.tryRequest|tryRequest(){}[0]
+}
+
+final class com.zleptnig.reviewflow.core/ReviewRules { // com.zleptnig.reviewflow.core/ReviewRules|null[0]
+    constructor <init>(kotlin/Int = ..., kotlin/Int = ..., kotlin.time/Duration = ..., kotlin/Boolean = ...) // com.zleptnig.reviewflow.core/ReviewRules.<init>|<init>(kotlin.Int;kotlin.Int;kotlin.time.Duration;kotlin.Boolean){}[0]
+
+    final val cooldown // com.zleptnig.reviewflow.core/ReviewRules.cooldown|{}cooldown[0]
+        final fun <get-cooldown>(): kotlin.time/Duration // com.zleptnig.reviewflow.core/ReviewRules.cooldown.<get-cooldown>|<get-cooldown>(){}[0]
+    final val minAppStarts // com.zleptnig.reviewflow.core/ReviewRules.minAppStarts|{}minAppStarts[0]
+        final fun <get-minAppStarts>(): kotlin/Int // com.zleptnig.reviewflow.core/ReviewRules.minAppStarts.<get-minAppStarts>|<get-minAppStarts>(){}[0]
+    final val minSuccessMoments // com.zleptnig.reviewflow.core/ReviewRules.minSuccessMoments|{}minSuccessMoments[0]
+        final fun <get-minSuccessMoments>(): kotlin/Int // com.zleptnig.reviewflow.core/ReviewRules.minSuccessMoments.<get-minSuccessMoments>|<get-minSuccessMoments>(){}[0]
+    final val oncePerVersion // com.zleptnig.reviewflow.core/ReviewRules.oncePerVersion|{}oncePerVersion[0]
+        final fun <get-oncePerVersion>(): kotlin/Boolean // com.zleptnig.reviewflow.core/ReviewRules.oncePerVersion.<get-oncePerVersion>|<get-oncePerVersion>(){}[0]
+
+    final fun component1(): kotlin/Int // com.zleptnig.reviewflow.core/ReviewRules.component1|component1(){}[0]
+    final fun component2(): kotlin/Int // com.zleptnig.reviewflow.core/ReviewRules.component2|component2(){}[0]
+    final fun component3(): kotlin.time/Duration // com.zleptnig.reviewflow.core/ReviewRules.component3|component3(){}[0]
+    final fun component4(): kotlin/Boolean // com.zleptnig.reviewflow.core/ReviewRules.component4|component4(){}[0]
+    final fun copy(kotlin/Int = ..., kotlin/Int = ..., kotlin.time/Duration = ..., kotlin/Boolean = ...): com.zleptnig.reviewflow.core/ReviewRules // com.zleptnig.reviewflow.core/ReviewRules.copy|copy(kotlin.Int;kotlin.Int;kotlin.time.Duration;kotlin.Boolean){}[0]
+    final fun equals(kotlin/Any?): kotlin/Boolean // com.zleptnig.reviewflow.core/ReviewRules.equals|equals(kotlin.Any?){}[0]
+    final fun hashCode(): kotlin/Int // com.zleptnig.reviewflow.core/ReviewRules.hashCode|hashCode(){}[0]
+    final fun toString(): kotlin/String // com.zleptnig.reviewflow.core/ReviewRules.toString|toString(){}[0]
+}
+
+final class com.zleptnig.reviewflow.core/ReviewSnapshot { // com.zleptnig.reviewflow.core/ReviewSnapshot|null[0]
+    constructor <init>(kotlin/Int = ..., kotlin/Int = ..., kotlin/Long = ..., kotlin/String? = ...) // com.zleptnig.reviewflow.core/ReviewSnapshot.<init>|<init>(kotlin.Int;kotlin.Int;kotlin.Long;kotlin.String?){}[0]
+
+    final val appStarts // com.zleptnig.reviewflow.core/ReviewSnapshot.appStarts|{}appStarts[0]
+        final fun <get-appStarts>(): kotlin/Int // com.zleptnig.reviewflow.core/ReviewSnapshot.appStarts.<get-appStarts>|<get-appStarts>(){}[0]
+    final val lastAttemptEpochMs // com.zleptnig.reviewflow.core/ReviewSnapshot.lastAttemptEpochMs|{}lastAttemptEpochMs[0]
+        final fun <get-lastAttemptEpochMs>(): kotlin/Long // com.zleptnig.reviewflow.core/ReviewSnapshot.lastAttemptEpochMs.<get-lastAttemptEpochMs>|<get-lastAttemptEpochMs>(){}[0]
+    final val lastRequestCompletedVersion // com.zleptnig.reviewflow.core/ReviewSnapshot.lastRequestCompletedVersion|{}lastRequestCompletedVersion[0]
+        final fun <get-lastRequestCompletedVersion>(): kotlin/String? // com.zleptnig.reviewflow.core/ReviewSnapshot.lastRequestCompletedVersion.<get-lastRequestCompletedVersion>|<get-lastRequestCompletedVersion>(){}[0]
+    final val successMoments // com.zleptnig.reviewflow.core/ReviewSnapshot.successMoments|{}successMoments[0]
+        final fun <get-successMoments>(): kotlin/Int // com.zleptnig.reviewflow.core/ReviewSnapshot.successMoments.<get-successMoments>|<get-successMoments>(){}[0]
+
+    final fun component1(): kotlin/Int // com.zleptnig.reviewflow.core/ReviewSnapshot.component1|component1(){}[0]
+    final fun component2(): kotlin/Int // com.zleptnig.reviewflow.core/ReviewSnapshot.component2|component2(){}[0]
+    final fun component3(): kotlin/Long // com.zleptnig.reviewflow.core/ReviewSnapshot.component3|component3(){}[0]
+    final fun component4(): kotlin/String? // com.zleptnig.reviewflow.core/ReviewSnapshot.component4|component4(){}[0]
+    final fun copy(kotlin/Int = ..., kotlin/Int = ..., kotlin/Long = ..., kotlin/String? = ...): com.zleptnig.reviewflow.core/ReviewSnapshot // com.zleptnig.reviewflow.core/ReviewSnapshot.copy|copy(kotlin.Int;kotlin.Int;kotlin.Long;kotlin.String?){}[0]
+    final fun equals(kotlin/Any?): kotlin/Boolean // com.zleptnig.reviewflow.core/ReviewSnapshot.equals|equals(kotlin.Any?){}[0]
+    final fun hashCode(): kotlin/Int // com.zleptnig.reviewflow.core/ReviewSnapshot.hashCode|hashCode(){}[0]
+    final fun toString(): kotlin/String // com.zleptnig.reviewflow.core/ReviewSnapshot.toString|toString(){}[0]
+}
+
+final object com.zleptnig.reviewflow.core/IosReviewFlow { // com.zleptnig.reviewflow.core/IosReviewFlow|null[0]
+    final fun create(com.zleptnig.reviewflow.core/IosReviewRequest): com.zleptnig.reviewflow.core/ReviewFlow // com.zleptnig.reviewflow.core/IosReviewFlow.create|create(com.zleptnig.reviewflow.core.IosReviewRequest){}[0]
+    final fun create(com.zleptnig.reviewflow.core/IosReviewRequest, com.zleptnig.reviewflow.core/ReviewRules = ..., com.zleptnig.reviewflow.core/Clock = ...): com.zleptnig.reviewflow.core/ReviewFlow // com.zleptnig.reviewflow.core/IosReviewFlow.create|create(com.zleptnig.reviewflow.core.IosReviewRequest;com.zleptnig.reviewflow.core.ReviewRules;com.zleptnig.reviewflow.core.Clock){}[0]
+}
+
+final object com.zleptnig.reviewflow.core/SystemClock : com.zleptnig.reviewflow.core/Clock { // com.zleptnig.reviewflow.core/SystemClock|null[0]
+    final fun nowEpochMs(): kotlin/Long // com.zleptnig.reviewflow.core/SystemClock.nowEpochMs|nowEpochMs(){}[0]
+}

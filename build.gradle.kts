@@ -4,26 +4,32 @@ import org.gradle.api.tasks.Delete
 plugins {
     alias(libs.plugins.android.application) apply false
     alias(libs.plugins.android.library) apply false
+    alias(libs.plugins.android.kotlin.multiplatform.library) apply false
     alias(libs.plugins.kotlin.android) apply false
+    alias(libs.plugins.kotlin.multiplatform) apply false
     alias(libs.plugins.kotlin.compose) apply false
 }
 
 group = providers.gradleProperty("GROUP").get()
 version = providers.gradleProperty("VERSION_NAME").get()
 
-val releaseModules = setOf("review-core", "review-compose")
-val releaseVerificationModules = releaseModules + "sample-app"
+val releaseModules = setOf("reviewflow-core", "review-compose")
 val verifyMavenCentralRelease = tasks.register("verifyMavenCentralRelease") {
     group = "verification"
     description = "Runs library unit tests and the sample-app integration smoke tests."
-    dependsOn(releaseVerificationModules.map { ":$it:test" })
+    dependsOn(
+        ":reviewflow-core:allTests",
+        ":reviewflow-core:checkLegacyAbi",
+        ":review-compose:test",
+        ":sample-app:test",
+    )
 }
 
 val prepareMavenCentralRelease = tasks.register("prepareMavenCentralRelease") {
     group = "publishing"
     description = "Builds both Maven Central deployment bundles without uploading them."
     dependsOn(
-        ":review-core:zipMavenCentralPortalPublication",
+        ":reviewflow-core:zipMavenCentralPortalPublication",
         ":review-compose:zipMavenCentralPortalPublication",
     )
 }
@@ -33,7 +39,7 @@ val validateMavenCentralRelease = tasks.register("validateMavenCentralRelease") 
     description = "Uploads and validates both Maven Central deployments without releasing them."
     dependsOn(
         prepareMavenCentralRelease,
-        ":review-core:validateMavenCentralPortalPublication",
+        ":reviewflow-core:validateMavenCentralPortalPublication",
         ":review-compose:validateMavenCentralPortalPublication",
     )
 }
@@ -82,10 +88,10 @@ subprojects {
 
 tasks.register("releaseToMavenCentralPortal") {
     group = "publishing"
-    description = "Publishes and releases review-core and review-compose via Maven Central Portal."
+    description = "Publishes and releases reviewflow-core and reviewflow-compose via Maven Central Portal."
     dependsOn(
         validateMavenCentralRelease,
-        ":review-core:releaseMavenCentralPortalPublication",
+        ":reviewflow-core:releaseMavenCentralPortalPublication",
         ":review-compose:releaseMavenCentralPortalPublication",
     )
 }

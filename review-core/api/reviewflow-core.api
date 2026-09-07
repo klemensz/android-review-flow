@@ -1,0 +1,356 @@
+public final class com/zleptnig/reviewflow/core/AndroidReviewFlow {
+	public static final field INSTANCE Lcom/zleptnig/reviewflow/core/AndroidReviewFlow;
+	public final fun create (Landroid/content/Context;Lkotlin/jvm/functions/Function0;Lcom/zleptnig/reviewflow/core/ReviewRules;Lcom/zleptnig/reviewflow/core/Clock;)Lcom/zleptnig/reviewflow/core/ReviewFlow;
+	public static synthetic fun create$default (Lcom/zleptnig/reviewflow/core/AndroidReviewFlow;Landroid/content/Context;Lkotlin/jvm/functions/Function0;Lcom/zleptnig/reviewflow/core/ReviewRules;Lcom/zleptnig/reviewflow/core/Clock;ILjava/lang/Object;)Lcom/zleptnig/reviewflow/core/ReviewFlow;
+}
+
+public abstract interface class com/zleptnig/reviewflow/core/AppVersionProvider {
+	public abstract fun versionName ()Ljava/lang/String;
+}
+
+public abstract interface class com/zleptnig/reviewflow/core/Clock {
+	public abstract fun nowEpochMs ()J
+}
+
+public final class com/zleptnig/reviewflow/core/DefaultAppVersionProvider : com/zleptnig/reviewflow/core/AppVersionProvider {
+	public fun <init> (Landroid/content/Context;)V
+	public fun versionName ()Ljava/lang/String;
+}
+
+public final class com/zleptnig/reviewflow/core/PlayCoreReviewClient : com/zleptnig/reviewflow/core/ReviewClient {
+	public fun <init> (Landroid/content/Context;)V
+	public fun launchReviewFlow (Landroid/app/Activity;Lcom/google/android/play/core/review/ReviewInfo;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public fun requestReviewInfo (Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+}
+
+public final class com/zleptnig/reviewflow/core/PlayCoreReviewPresenter : com/zleptnig/reviewflow/core/ReviewPresenter {
+	public fun <init> (Landroid/content/Context;Lkotlin/jvm/functions/Function0;)V
+	public fun requestReview (Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+}
+
+public abstract interface class com/zleptnig/reviewflow/core/ReviewClient {
+	public abstract fun launchReviewFlow (Landroid/app/Activity;Lcom/google/android/play/core/review/ReviewInfo;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public abstract fun requestReviewInfo (Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+}
+
+public abstract interface class com/zleptnig/reviewflow/core/ReviewEvent {
+}
+
+public final class com/zleptnig/reviewflow/core/ReviewEvent$Attempted : com/zleptnig/reviewflow/core/ReviewEvent {
+	public static final field INSTANCE Lcom/zleptnig/reviewflow/core/ReviewEvent$Attempted;
+	public fun equals (Ljava/lang/Object;)Z
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class com/zleptnig/reviewflow/core/ReviewEvent$Failed : com/zleptnig/reviewflow/core/ReviewEvent {
+	public fun <init> (Ljava/lang/Throwable;)V
+	public final fun component1 ()Ljava/lang/Throwable;
+	public final fun copy (Ljava/lang/Throwable;)Lcom/zleptnig/reviewflow/core/ReviewEvent$Failed;
+	public static synthetic fun copy$default (Lcom/zleptnig/reviewflow/core/ReviewEvent$Failed;Ljava/lang/Throwable;ILjava/lang/Object;)Lcom/zleptnig/reviewflow/core/ReviewEvent$Failed;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getThrowable ()Ljava/lang/Throwable;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class com/zleptnig/reviewflow/core/ReviewEvent$Shown : com/zleptnig/reviewflow/core/ReviewEvent {
+	public static final field INSTANCE Lcom/zleptnig/reviewflow/core/ReviewEvent$Shown;
+	public fun equals (Ljava/lang/Object;)Z
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class com/zleptnig/reviewflow/core/ReviewEvent$Skipped : com/zleptnig/reviewflow/core/ReviewEvent {
+	public fun <init> (Lcom/zleptnig/reviewflow/core/SkipReason;)V
+	public final fun component1 ()Lcom/zleptnig/reviewflow/core/SkipReason;
+	public final fun copy (Lcom/zleptnig/reviewflow/core/SkipReason;)Lcom/zleptnig/reviewflow/core/ReviewEvent$Skipped;
+	public static synthetic fun copy$default (Lcom/zleptnig/reviewflow/core/ReviewEvent$Skipped;Lcom/zleptnig/reviewflow/core/SkipReason;ILjava/lang/Object;)Lcom/zleptnig/reviewflow/core/ReviewEvent$Skipped;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getReason ()Lcom/zleptnig/reviewflow/core/SkipReason;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class com/zleptnig/reviewflow/core/ReviewFlow {
+	public fun <init> (Lcom/zleptnig/reviewflow/core/ReviewPresenter;Lcom/zleptnig/reviewflow/core/ReviewStateStore;Lcom/zleptnig/reviewflow/core/AppVersionProvider;Lcom/zleptnig/reviewflow/core/ReviewRules;Lcom/zleptnig/reviewflow/core/Clock;)V
+	public synthetic fun <init> (Lcom/zleptnig/reviewflow/core/ReviewPresenter;Lcom/zleptnig/reviewflow/core/ReviewStateStore;Lcom/zleptnig/reviewflow/core/AppVersionProvider;Lcom/zleptnig/reviewflow/core/ReviewRules;Lcom/zleptnig/reviewflow/core/Clock;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun getEvents ()Lkotlinx/coroutines/flow/SharedFlow;
+	public final fun getState ()Lkotlinx/coroutines/flow/StateFlow;
+	public final fun onAppStart (Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public final fun onSuccessMoment (Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public final fun tryRequest (Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+}
+
+public abstract interface class com/zleptnig/reviewflow/core/ReviewFlowEvent {
+}
+
+public final class com/zleptnig/reviewflow/core/ReviewFlowEvent$Attempted : com/zleptnig/reviewflow/core/ReviewFlowEvent {
+	public static final field INSTANCE Lcom/zleptnig/reviewflow/core/ReviewFlowEvent$Attempted;
+	public fun equals (Ljava/lang/Object;)Z
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class com/zleptnig/reviewflow/core/ReviewFlowEvent$Failed : com/zleptnig/reviewflow/core/ReviewFlowEvent {
+	public fun <init> (Ljava/lang/Throwable;)V
+	public final fun component1 ()Ljava/lang/Throwable;
+	public final fun copy (Ljava/lang/Throwable;)Lcom/zleptnig/reviewflow/core/ReviewFlowEvent$Failed;
+	public static synthetic fun copy$default (Lcom/zleptnig/reviewflow/core/ReviewFlowEvent$Failed;Ljava/lang/Throwable;ILjava/lang/Object;)Lcom/zleptnig/reviewflow/core/ReviewFlowEvent$Failed;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getThrowable ()Ljava/lang/Throwable;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class com/zleptnig/reviewflow/core/ReviewFlowEvent$RequestCompleted : com/zleptnig/reviewflow/core/ReviewFlowEvent {
+	public static final field INSTANCE Lcom/zleptnig/reviewflow/core/ReviewFlowEvent$RequestCompleted;
+	public fun equals (Ljava/lang/Object;)Z
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class com/zleptnig/reviewflow/core/ReviewFlowEvent$RequestUnavailable : com/zleptnig/reviewflow/core/ReviewFlowEvent {
+	public static final field INSTANCE Lcom/zleptnig/reviewflow/core/ReviewFlowEvent$RequestUnavailable;
+	public fun equals (Ljava/lang/Object;)Z
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class com/zleptnig/reviewflow/core/ReviewFlowEvent$Skipped : com/zleptnig/reviewflow/core/ReviewFlowEvent {
+	public fun <init> (Lcom/zleptnig/reviewflow/core/SkipReason;)V
+	public final fun component1 ()Lcom/zleptnig/reviewflow/core/SkipReason;
+	public final fun copy (Lcom/zleptnig/reviewflow/core/SkipReason;)Lcom/zleptnig/reviewflow/core/ReviewFlowEvent$Skipped;
+	public static synthetic fun copy$default (Lcom/zleptnig/reviewflow/core/ReviewFlowEvent$Skipped;Lcom/zleptnig/reviewflow/core/SkipReason;ILjava/lang/Object;)Lcom/zleptnig/reviewflow/core/ReviewFlowEvent$Skipped;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getReason ()Lcom/zleptnig/reviewflow/core/SkipReason;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public abstract interface class com/zleptnig/reviewflow/core/ReviewFlowState {
+}
+
+public final class com/zleptnig/reviewflow/core/ReviewFlowState$Done : com/zleptnig/reviewflow/core/ReviewFlowState {
+	public static final field INSTANCE Lcom/zleptnig/reviewflow/core/ReviewFlowState$Done;
+	public fun equals (Ljava/lang/Object;)Z
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class com/zleptnig/reviewflow/core/ReviewFlowState$Error : com/zleptnig/reviewflow/core/ReviewFlowState {
+	public fun <init> (Ljava/lang/Throwable;)V
+	public final fun component1 ()Ljava/lang/Throwable;
+	public final fun copy (Ljava/lang/Throwable;)Lcom/zleptnig/reviewflow/core/ReviewFlowState$Error;
+	public static synthetic fun copy$default (Lcom/zleptnig/reviewflow/core/ReviewFlowState$Error;Ljava/lang/Throwable;ILjava/lang/Object;)Lcom/zleptnig/reviewflow/core/ReviewFlowState$Error;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getThrowable ()Ljava/lang/Throwable;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class com/zleptnig/reviewflow/core/ReviewFlowState$Idle : com/zleptnig/reviewflow/core/ReviewFlowState {
+	public static final field INSTANCE Lcom/zleptnig/reviewflow/core/ReviewFlowState$Idle;
+	public fun equals (Ljava/lang/Object;)Z
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class com/zleptnig/reviewflow/core/ReviewFlowState$Requesting : com/zleptnig/reviewflow/core/ReviewFlowState {
+	public static final field INSTANCE Lcom/zleptnig/reviewflow/core/ReviewFlowState$Requesting;
+	public fun equals (Ljava/lang/Object;)Z
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class com/zleptnig/reviewflow/core/ReviewFlowState$Unavailable : com/zleptnig/reviewflow/core/ReviewFlowState {
+	public static final field INSTANCE Lcom/zleptnig/reviewflow/core/ReviewFlowState$Unavailable;
+	public fun equals (Ljava/lang/Object;)Z
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class com/zleptnig/reviewflow/core/ReviewOrchestrator {
+	public static final field Companion Lcom/zleptnig/reviewflow/core/ReviewOrchestrator$Companion;
+	public final fun getEvents ()Lkotlinx/coroutines/flow/SharedFlow;
+	public final fun getState ()Lkotlinx/coroutines/flow/StateFlow;
+	public final fun onAppStart (Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public final fun onSuccessMoment (Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public final fun tryShow (Landroid/app/Activity;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+}
+
+public final class com/zleptnig/reviewflow/core/ReviewOrchestrator$Companion {
+	public final fun create (Landroid/content/Context;Lcom/zleptnig/reviewflow/core/ReviewRules;Lcom/zleptnig/reviewflow/core/ReviewClient;Lcom/zleptnig/reviewflow/core/AppVersionProvider;Lcom/zleptnig/reviewflow/core/Clock;)Lcom/zleptnig/reviewflow/core/ReviewOrchestrator;
+	public static synthetic fun create$default (Lcom/zleptnig/reviewflow/core/ReviewOrchestrator$Companion;Landroid/content/Context;Lcom/zleptnig/reviewflow/core/ReviewRules;Lcom/zleptnig/reviewflow/core/ReviewClient;Lcom/zleptnig/reviewflow/core/AppVersionProvider;Lcom/zleptnig/reviewflow/core/Clock;ILjava/lang/Object;)Lcom/zleptnig/reviewflow/core/ReviewOrchestrator;
+}
+
+public abstract interface class com/zleptnig/reviewflow/core/ReviewPresentationResult {
+}
+
+public final class com/zleptnig/reviewflow/core/ReviewPresentationResult$Completed : com/zleptnig/reviewflow/core/ReviewPresentationResult {
+	public static final field INSTANCE Lcom/zleptnig/reviewflow/core/ReviewPresentationResult$Completed;
+	public fun equals (Ljava/lang/Object;)Z
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class com/zleptnig/reviewflow/core/ReviewPresentationResult$Failed : com/zleptnig/reviewflow/core/ReviewPresentationResult {
+	public fun <init> (Ljava/lang/Throwable;)V
+	public final fun component1 ()Ljava/lang/Throwable;
+	public final fun copy (Ljava/lang/Throwable;)Lcom/zleptnig/reviewflow/core/ReviewPresentationResult$Failed;
+	public static synthetic fun copy$default (Lcom/zleptnig/reviewflow/core/ReviewPresentationResult$Failed;Ljava/lang/Throwable;ILjava/lang/Object;)Lcom/zleptnig/reviewflow/core/ReviewPresentationResult$Failed;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getThrowable ()Ljava/lang/Throwable;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class com/zleptnig/reviewflow/core/ReviewPresentationResult$Unavailable : com/zleptnig/reviewflow/core/ReviewPresentationResult {
+	public static final field INSTANCE Lcom/zleptnig/reviewflow/core/ReviewPresentationResult$Unavailable;
+	public fun equals (Ljava/lang/Object;)Z
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public abstract interface class com/zleptnig/reviewflow/core/ReviewPresenter {
+	public abstract fun requestReview (Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+}
+
+public final class com/zleptnig/reviewflow/core/ReviewRules {
+	public synthetic fun <init> (IIJZILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public synthetic fun <init> (IIJZLkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1 ()I
+	public final fun component2 ()I
+	public final fun component3-UwyO8pc ()J
+	public final fun component4 ()Z
+	public final fun copy-exY8QGI (IIJZ)Lcom/zleptnig/reviewflow/core/ReviewRules;
+	public static synthetic fun copy-exY8QGI$default (Lcom/zleptnig/reviewflow/core/ReviewRules;IIJZILjava/lang/Object;)Lcom/zleptnig/reviewflow/core/ReviewRules;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getCooldown-UwyO8pc ()J
+	public final fun getMinAppStarts ()I
+	public final fun getMinSuccessMoments ()I
+	public final fun getOncePerVersion ()Z
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class com/zleptnig/reviewflow/core/ReviewSnapshot {
+	public fun <init> ()V
+	public fun <init> (IIJLjava/lang/String;)V
+	public synthetic fun <init> (IIJLjava/lang/String;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1 ()I
+	public final fun component2 ()I
+	public final fun component3 ()J
+	public final fun component4 ()Ljava/lang/String;
+	public final fun copy (IIJLjava/lang/String;)Lcom/zleptnig/reviewflow/core/ReviewSnapshot;
+	public static synthetic fun copy$default (Lcom/zleptnig/reviewflow/core/ReviewSnapshot;IIJLjava/lang/String;ILjava/lang/Object;)Lcom/zleptnig/reviewflow/core/ReviewSnapshot;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getAppStarts ()I
+	public final fun getLastAttemptEpochMs ()J
+	public final fun getLastRequestCompletedVersion ()Ljava/lang/String;
+	public final fun getSuccessMoments ()I
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public abstract interface class com/zleptnig/reviewflow/core/ReviewState {
+}
+
+public final class com/zleptnig/reviewflow/core/ReviewState$Done : com/zleptnig/reviewflow/core/ReviewState {
+	public static final field INSTANCE Lcom/zleptnig/reviewflow/core/ReviewState$Done;
+	public fun equals (Ljava/lang/Object;)Z
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class com/zleptnig/reviewflow/core/ReviewState$Error : com/zleptnig/reviewflow/core/ReviewState {
+	public fun <init> (Ljava/lang/Throwable;)V
+	public final fun component1 ()Ljava/lang/Throwable;
+	public final fun copy (Ljava/lang/Throwable;)Lcom/zleptnig/reviewflow/core/ReviewState$Error;
+	public static synthetic fun copy$default (Lcom/zleptnig/reviewflow/core/ReviewState$Error;Ljava/lang/Throwable;ILjava/lang/Object;)Lcom/zleptnig/reviewflow/core/ReviewState$Error;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getThrowable ()Ljava/lang/Throwable;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class com/zleptnig/reviewflow/core/ReviewState$Idle : com/zleptnig/reviewflow/core/ReviewState {
+	public static final field INSTANCE Lcom/zleptnig/reviewflow/core/ReviewState$Idle;
+	public fun equals (Ljava/lang/Object;)Z
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class com/zleptnig/reviewflow/core/ReviewState$Loading : com/zleptnig/reviewflow/core/ReviewState {
+	public static final field INSTANCE Lcom/zleptnig/reviewflow/core/ReviewState$Loading;
+	public fun equals (Ljava/lang/Object;)Z
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class com/zleptnig/reviewflow/core/ReviewState$Ready : com/zleptnig/reviewflow/core/ReviewState {
+	public fun <init> (Lcom/google/android/play/core/review/ReviewInfo;)V
+	public final fun component1 ()Lcom/google/android/play/core/review/ReviewInfo;
+	public final fun copy (Lcom/google/android/play/core/review/ReviewInfo;)Lcom/zleptnig/reviewflow/core/ReviewState$Ready;
+	public static synthetic fun copy$default (Lcom/zleptnig/reviewflow/core/ReviewState$Ready;Lcom/google/android/play/core/review/ReviewInfo;ILjava/lang/Object;)Lcom/zleptnig/reviewflow/core/ReviewState$Ready;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getReviewInfo ()Lcom/google/android/play/core/review/ReviewInfo;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class com/zleptnig/reviewflow/core/ReviewState$Showing : com/zleptnig/reviewflow/core/ReviewState {
+	public static final field INSTANCE Lcom/zleptnig/reviewflow/core/ReviewState$Showing;
+	public fun equals (Ljava/lang/Object;)Z
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public abstract interface class com/zleptnig/reviewflow/core/ReviewStateStore {
+	public abstract fun read (Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public abstract fun update (Lkotlin/jvm/functions/Function1;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+}
+
+public abstract interface class com/zleptnig/reviewflow/core/SkipReason {
+}
+
+public final class com/zleptnig/reviewflow/core/SkipReason$AlreadyShownForThisVersion : com/zleptnig/reviewflow/core/SkipReason {
+	public static final field INSTANCE Lcom/zleptnig/reviewflow/core/SkipReason$AlreadyShownForThisVersion;
+	public fun equals (Ljava/lang/Object;)Z
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class com/zleptnig/reviewflow/core/SkipReason$CooldownActive : com/zleptnig/reviewflow/core/SkipReason {
+	public static final field INSTANCE Lcom/zleptnig/reviewflow/core/SkipReason$CooldownActive;
+	public fun equals (Ljava/lang/Object;)Z
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class com/zleptnig/reviewflow/core/SkipReason$InFlight : com/zleptnig/reviewflow/core/SkipReason {
+	public static final field INSTANCE Lcom/zleptnig/reviewflow/core/SkipReason$InFlight;
+	public fun equals (Ljava/lang/Object;)Z
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class com/zleptnig/reviewflow/core/SkipReason$NotEnoughAppStarts : com/zleptnig/reviewflow/core/SkipReason {
+	public static final field INSTANCE Lcom/zleptnig/reviewflow/core/SkipReason$NotEnoughAppStarts;
+	public fun equals (Ljava/lang/Object;)Z
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class com/zleptnig/reviewflow/core/SkipReason$NotEnoughSuccessMoments : com/zleptnig/reviewflow/core/SkipReason {
+	public static final field INSTANCE Lcom/zleptnig/reviewflow/core/SkipReason$NotEnoughSuccessMoments;
+	public fun equals (Ljava/lang/Object;)Z
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class com/zleptnig/reviewflow/core/SystemClock : com/zleptnig/reviewflow/core/Clock {
+	public static final field INSTANCE Lcom/zleptnig/reviewflow/core/SystemClock;
+	public fun nowEpochMs ()J
+}
+
