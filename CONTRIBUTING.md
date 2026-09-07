@@ -41,9 +41,20 @@ Please make sure:
 
 - The project builds successfully
 - Tests pass
-- Public API is not broken
+- Public API is not broken (`./gradlew :reviewflow-core:checkLegacyAbi`, or the full
+  `./gradlew verifyMavenCentralRelease` gate; complete Apple-target validation requires
+  macOS with Xcode, and Linux runs do not cover those targets)
+- The PR lists tested platforms (Android, iOS, or both), devices/simulators, and any skipped checks
 - New behavior is documented
 - You followed rules in AGENTS.md
+
+---
+
+## AI-assisted contributions
+
+AI-assisted contributions are welcome. Review and understand all submitted
+changes, and validate them using the same checks as any other contribution.
+You remain responsible for their correctness and maintainability.
 
 ---
 
