@@ -197,7 +197,9 @@ func makeReviewFlow() -> ReviewFlow {
 }
 ```
 
-The complete type-checked bridge is available in [`samples/ios/StoreKitReviewRequest.swift`](samples/ios/StoreKitReviewRequest.swift). The Kotlin adapter invokes it on the main dispatcher. ReviewFlow does not fall back to deprecated `SKStoreReviewController`.
+The complete type-checked bridge is available in [`samples/ios/StoreKitReviewRequest.swift`](samples/ios/StoreKitReviewRequest.swift).
+A runnable native SwiftUI demo is available in [`samples/ios`](samples/ios/README.md). The Kotlin adapter invokes it on the main dispatcher.
+ReviewFlow does not fall back to deprecated `SKStoreReviewController`.
 
 The iOS factory uses `NSUserDefaults` for counters and cooldown state. The once-per-version value comes from `CFBundleShortVersionString`, falling back to `CFBundleVersion`.
 
