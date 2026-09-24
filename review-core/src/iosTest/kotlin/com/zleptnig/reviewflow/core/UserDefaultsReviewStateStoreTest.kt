@@ -1,10 +1,19 @@
 package com.zleptnig.reviewflow.core
 
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.test.UnconfinedTestDispatcher
+import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
+import kotlinx.coroutines.test.setMain
 import platform.Foundation.NSUUID
 import platform.Foundation.NSUserDefaults
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFalse
+import kotlin.test.assertIs
+import kotlin.test.assertTrue
+import kotlin.time.Duration.Companion.days
 
 class UserDefaultsReviewStateStoreTest {
     @Test
@@ -52,6 +61,64 @@ class UserDefaultsReviewStateStoreTest {
             assertEquals(null, store.read().lastRequestCompletedVersion)
         } finally {
             defaults.removePersistentDomainForName(suiteName)
+        }
+    }
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    @Test
+    fun unavailableAndCompletedRequestsSurviveFlowRecreation() = runTest {
+        // The native test runner blocks the actual main queue. Keep the presenter's
+        // Main dispatch deterministic while testing persistence and rule behavior.
+        Dispatchers.setMain(UnconfinedTestDispatcher(testScheduler))
+        val suiteName = "com.zleptnig.reviewflow.test.${NSUUID().UUIDString}"
+        val defaults = requireNotNull(NSUserDefaults(suiteName = suiteName))
+        defaults.removePersistentDomainForName(suiteName)
+        var available = false
+        var platformCalls = 0
+        val request = object : IosReviewRequest {
+            override fun requestReview(): Boolean {
+                platformCalls++
+                return available
+            }
+        }
+        val rules = ReviewRules(
+            minAppStarts = 1,
+            minSuccessMoments = 1,
+            cooldown = 1.days,
+            oncePerVersion = true,
+        )
+        val version = object : AppVersionProvider {
+            override fun versionName(): String = "2.0"
+        }
+        val clock = object : Clock {
+            override fun nowEpochMs(): Long = 1_000L
+        }
+        fun newFlow() = ReviewFlow(
+            presenter = IosStoreKitPresenter(request),
+            store = UserDefaultsReviewStateStore(defaults),
+            versionProvider = version,
+            rules = rules,
+            clock = clock,
+        )
+
+        try {
+            val first = newFlow()
+            first.onAppStart()
+            first.onSuccessMoment()
+            assertFalse(first.tryRequest())
+            assertIs<ReviewFlowState.Unavailable>(first.state.value)
+            assertEquals(0L, UserDefaultsReviewStateStore(defaults).read().lastAttemptEpochMs)
+
+            available = true
+            val recreated = newFlow()
+            assertTrue(recreated.tryRequest())
+            assertEquals("2.0", UserDefaultsReviewStateStore(defaults).read().lastRequestCompletedVersion)
+
+            assertFalse(newFlow().tryRequest())
+            assertEquals(2, platformCalls)
+        } finally {
+            defaults.removePersistentDomainForName(suiteName)
+            Dispatchers.resetMain()
         }
     }
 }

@@ -195,6 +195,64 @@ class ReviewFlowTest {
     }
 
     @Test
+    fun cancelledRequestReleasesSingleFlightForTheNextAttempt() = runTest {
+        var attempts = 0
+        val flow = newFlow(
+            presenter = presenter {
+                attempts++
+                if (attempts == 1) {
+                    throw CancellationException("presenter cancelled")
+                }
+                ReviewPresentationResult.Completed
+            },
+        )
+
+        assertFailsWith<CancellationException> { flow.tryRequest() }
+        assertIs<ReviewFlowState.Idle>(flow.state.value)
+
+        // A cancelled request must not leave the single-flight mutex locked.
+        assertTrue(flow.tryRequest())
+        assertEquals(2, attempts)
+    }
+
+    @Test
+    fun failedRequestKeepsCooldownButDoesNotCompleteVersion() = runTest {
+        val store = InMemoryReviewStateStore()
+        val rules = rules(cooldown = 1.days, oncePerVersion = true)
+        val failed = newFlow(
+            presenter = presenter {
+                ReviewPresentationResult.Failed(IllegalStateException("platform failure"))
+            },
+            store = store,
+            versionProvider = versionProvider("2.0"),
+            rules = rules,
+            clock = fixedClock(1_000L),
+        )
+
+        assertFalse(failed.tryRequest())
+        assertEquals(1_000L, store.read().lastAttemptEpochMs)
+        assertEquals(null, store.read().lastRequestCompletedVersion)
+
+        val retry = newFlow(
+            store = store,
+            versionProvider = versionProvider("2.0"),
+            rules = rules,
+            clock = fixedClock(1_001L),
+        )
+        val events = captureEvents(retry) { assertFalse(retry.tryRequest()) }
+        assertTrue(events.contains(ReviewFlowEvent.Skipped(SkipReason.CooldownActive)))
+
+        val afterCooldown = newFlow(
+            store = store,
+            versionProvider = versionProvider("2.0"),
+            rules = rules,
+            clock = fixedClock(1_000L + 1.days.inWholeMilliseconds),
+        )
+        assertTrue(afterCooldown.tryRequest())
+        assertEquals("2.0", store.read().lastRequestCompletedVersion)
+    }
+
+    @Test
     fun concurrentRequestIsRejectedWithoutWaiting() = runTest {
         val entered = CompletableDeferred<Unit>()
         val release = CompletableDeferred<Unit>()
