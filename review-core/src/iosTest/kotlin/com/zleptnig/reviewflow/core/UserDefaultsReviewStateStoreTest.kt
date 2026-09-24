@@ -2,6 +2,9 @@ package com.zleptnig.reviewflow.core
 
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
@@ -16,6 +19,28 @@ import kotlin.test.assertTrue
 import kotlin.time.Duration.Companion.days
 
 class UserDefaultsReviewStateStoreTest {
+    @Test
+    fun counterUpdatesAcrossStoreInstancesAreAtomic() = runTest {
+        val suiteName = "com.zleptnig.reviewflow.test.${NSUUID().UUIDString}"
+        val defaults = requireNotNull(NSUserDefaults(suiteName = suiteName))
+        defaults.removePersistentDomainForName(suiteName)
+        val stores = List(8) { UserDefaultsReviewStateStore(defaults) }
+
+        try {
+            coroutineScope {
+                stores.map { store ->
+                    async(Dispatchers.Default) {
+                        repeat(100) { store.update { it.copy(appStarts = it.appStarts + 1) } }
+                    }
+                }.awaitAll()
+            }
+
+            assertEquals(800, stores.first().read().appStarts)
+        } finally {
+            defaults.removePersistentDomainForName(suiteName)
+        }
+    }
+
     @Test
     fun roundTripsSnapshotInIsolatedSuite() = runTest {
         val suiteName = "com.zleptnig.reviewflow.test.${NSUUID().UUIDString}"

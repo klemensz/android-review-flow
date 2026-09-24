@@ -3,12 +3,15 @@ package com.zleptnig.reviewflow.core
 import android.app.Activity
 import androidx.test.core.app.ApplicationProvider
 import com.google.android.play.core.review.ReviewInfo
+import com.google.android.play.core.review.testing.FakeReviewManager
+import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.robolectric.Robolectric
 import org.robolectric.RobolectricTestRunner
 import kotlin.time.Duration
 
@@ -23,6 +26,57 @@ class AndroidReviewFlowTest {
             ReviewPresentationResult.Unavailable,
             presenter.requestReview(),
         )
+    }
+
+    @Test
+    fun `presenter does not launch when activity disappears during info request`() = runTest {
+        val context = ApplicationProvider.getApplicationContext<android.content.Context>()
+        val reviewManager = FakeReviewManager(context)
+        var currentActivity: Activity? = Robolectric.buildActivity(Activity::class.java).setup().get()
+        var launched = false
+        val presenter = PlayCoreReviewPresenter(
+            client = object : ReviewClient {
+                override suspend fun requestReviewInfo(): ReviewInfo {
+                    val info = reviewManager.requestReviewFlow().await()
+                    currentActivity = null
+                    return info
+                }
+
+                override suspend fun launchReviewFlow(activity: Activity, reviewInfo: ReviewInfo) {
+                    launched = true
+                }
+            },
+            activityProvider = { currentActivity },
+        )
+
+        assertEquals(ReviewPresentationResult.Unavailable, presenter.requestReview())
+        assertFalse(launched)
+    }
+
+    @Test
+    fun `presenter launches with the current activity after info request`() = runTest {
+        val context = ApplicationProvider.getApplicationContext<android.content.Context>()
+        val reviewManager = FakeReviewManager(context)
+        val replacement = Robolectric.buildActivity(Activity::class.java).setup().get()
+        var currentActivity: Activity? = Robolectric.buildActivity(Activity::class.java).setup().get()
+        var launchedWith: Activity? = null
+        val presenter = PlayCoreReviewPresenter(
+            client = object : ReviewClient {
+                override suspend fun requestReviewInfo(): ReviewInfo {
+                    val info = reviewManager.requestReviewFlow().await()
+                    currentActivity = replacement
+                    return info
+                }
+
+                override suspend fun launchReviewFlow(activity: Activity, reviewInfo: ReviewInfo) {
+                    launchedWith = activity
+                }
+            },
+            activityProvider = { currentActivity },
+        )
+
+        assertEquals(ReviewPresentationResult.Completed, presenter.requestReview())
+        assertTrue(launchedWith === replacement)
     }
 
     @Test

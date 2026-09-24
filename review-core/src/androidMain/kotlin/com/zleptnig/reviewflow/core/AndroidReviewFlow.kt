@@ -38,16 +38,20 @@ object AndroidReviewFlow {
  * [activityProvider] must not strongly capture an [Activity] when this presenter is stored beyond
  * that activity's lifecycle.
  */
-class PlayCoreReviewPresenter(
-    context: Context,
+class PlayCoreReviewPresenter internal constructor(
+    private val client: ReviewClient,
     private val activityProvider: () -> Activity?,
 ) : ReviewPresenter {
-    private val client: ReviewClient = PlayCoreReviewClient(context.applicationContext)
+    constructor(context: Context, activityProvider: () -> Activity?) : this(
+        PlayCoreReviewClient(context.applicationContext),
+        activityProvider,
+    )
 
     override suspend fun requestReview(): ReviewPresentationResult {
-        val activity = activityProvider() ?: return ReviewPresentationResult.Unavailable
+        if (activityProvider() == null) return ReviewPresentationResult.Unavailable
         return try {
             val reviewInfo = client.requestReviewInfo()
+            val activity = activityProvider() ?: return ReviewPresentationResult.Unavailable
             client.launchReviewFlow(activity, reviewInfo)
             ReviewPresentationResult.Completed
         } catch (cancellation: CancellationException) {

@@ -4,17 +4,19 @@ import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import platform.Foundation.NSUserDefaults
 
+// Factories create separate stores for the same app preferences. Their read-modify-write
+// operations must share one lock within the process.
+private val userDefaultsReviewStateMutex = Mutex()
+
 internal class UserDefaultsReviewStateStore(
     private val defaults: NSUserDefaults = NSUserDefaults.standardUserDefaults,
 ) : ReviewStateStore {
-    private val mutex = Mutex()
-
-    override suspend fun read(): ReviewSnapshot = mutex.withLock {
+    override suspend fun read(): ReviewSnapshot = userDefaultsReviewStateMutex.withLock {
         readUnlocked()
     }
 
     override suspend fun update(transform: (ReviewSnapshot) -> ReviewSnapshot) {
-        mutex.withLock {
+        userDefaultsReviewStateMutex.withLock {
             writeUnlocked(transform(readUnlocked()))
         }
     }
