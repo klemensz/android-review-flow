@@ -409,3 +409,7 @@ Follow the complete procedure in [RELEASING.md](RELEASING.md).
 ## License
 
 Apache 2.0
+
+---
+
+ReviewFlow development is supported by [creative workline GmbH](https://www.creativeworkline.at/).

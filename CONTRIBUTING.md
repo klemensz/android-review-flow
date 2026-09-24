@@ -26,8 +26,9 @@ Run tests:
 
 ./gradlew :reviewflow-core:allTests :review-compose:test :sample-app:test
 
-On Apple Silicon, the `iosX64Test` task is expected to be skipped. Run that target on an Intel
-macOS CI worker when x64 simulator execution is release-gating.
+On Apple Silicon, the `iosX64Test` task is expected to be skipped. The PR workflow does not
+execute the Intel simulator target, run the SwiftUI demo, or validate `review-compose` ABI.
+Run those checks separately when relevant and report any manual validation in the PR.
 
 Lint / verification:
 
@@ -47,6 +48,19 @@ Please make sure:
 - The PR lists tested platforms (Android, iOS, or both), devices/simulators, and any skipped checks
 - New behavior is documented
 - You followed rules in AGENTS.md
+
+If `checkLegacyAbi` fails, review the API difference. Update the committed API dumps only for
+intentional changes; never regenerate them in CI to conceal a compatibility failure.
+
+### Repository settings for maintainers
+
+After the first successful PR workflow run, configure a ruleset for `main` under GitHub's
+Settings > Rules > Rulesets. Require **Android checks** and **iOS and ABI checks** from GitHub
+Actions, and keep those job names stable. Enable automatic Copilot code review, including review
+of new pushes, if the account supports it. Human review remains necessary.
+
+These settings are not activated by the workflow. If a merge queue is enabled later, add the
+`merge_group` trigger before requiring these checks in the queue.
 
 ---
 
