@@ -5,9 +5,10 @@ Changes must preserve structured concurrency, Flow semantics, and public API sta
 
 ## Project structure
 
-- `review-core`:
+- `review-core` (Gradle project `:reviewflow-core`):
     - Kotlin Multiplatform and UI-toolkit-agnostic (no Compose dependency).
-    - Contains shared orchestration plus Android Play Core/DataStore and iOS StoreKit/UserDefaults adapters.
+    - Contains shared orchestration, Android Play Core/DataStore adapters, and iOS UserDefaults
+      persistence with an `IosReviewRequest` boundary for an app-provided Swift StoreKit bridge.
 - `review-compose`:
     - Jetpack Compose convenience layer only.
     - Must not contain business logic that belongs in `review-core`.
@@ -15,6 +16,9 @@ Changes must preserve structured concurrency, Flow semantics, and public API sta
     - Demonstrates library integration and diagnostics.
     - Must not contain behavior required by the library modules.
     - Its unit tests are release-gating integration smoke tests.
+- `samples/ios`:
+    - Native SwiftUI demo with a non-published `:ios-demo-bridge` framework adapter.
+    - Demonstrates a Swift StoreKit bridge; consuming apps provide their own implementation.
 
 ## Hard rules (must follow)
 
@@ -29,12 +33,14 @@ Changes must preserve structured concurrency, Flow semantics, and public API sta
     - No “event as state” anti-pattern.
     - Avoid changing replay/buffer behavior unless explicitly intended and documented.
 5. **Single-flight guarantees**:
-    - `tryShow()` must remain idempotent under concurrent calls.
-    - Avoid race conditions (keep mutex/atomic protection).
+    - `ReviewOrchestrator.tryShow()` and `ReviewFlow.tryRequest()` must reject overlapping calls
+      on the same instance with `SkipReason.InFlight`.
+    - Keep mutex/atomic protection for request attempts and shared state updates.
 6. **Module boundaries**:
     - `review-core` must not depend on Compose.
     - `review-compose` can depend on `review-core`, not the other way around.
-    - Shared source sets must not expose Android or Apple framework types.
+    - `commonMain` APIs must not expose Android or Apple framework types; platform APIs belong in
+      `androidMain` or `iosMain`.
 
 ## Coding standards
 
@@ -52,9 +58,9 @@ Changes must preserve structured concurrency, Flow semantics, and public API sta
 
 ## Persistence rules
 
-- DataStore keys are internal implementation details:
-    - Do not rename keys casually (migration would be required).
-    - If you must change keys, add migration or keep backward compatibility.
+- Android DataStore and iOS UserDefaults keys are internal implementation details. Do not rename
+  them without a migration or backward-compatible read path.
+- Store updates must remain atomic when multiple instances access the same persisted state.
 
 ## Compose integration rules
 
@@ -68,10 +74,10 @@ Changes must preserve structured concurrency, Flow semantics, and public API sta
 
 - Any change in orchestration logic must include tests.
 - Prefer deterministic tests:
-    - Use fake `Clock`.
-    - Use fake `ReviewClient`.
-    - Avoid relying on real Play Core behavior.
-- Focus tests on state/events and rule evaluation; the Play dialog is server-controlled and non-deterministic.
+    - Use fake `Clock`, `ReviewPresenter`, `ReviewStateStore`, and `AppVersionProvider` for shared rules.
+    - Use fake `ReviewClient` for Android compatibility and fake `IosReviewRequest` for the iOS bridge.
+    - Avoid relying on real Play Core or StoreKit behavior.
+- Focus tests on state/events and rule evaluation; the operating system controls dialog visibility.
 
 ## Documentation requirements
 
@@ -80,6 +86,7 @@ Changes must preserve structured concurrency, Flow semantics, and public API sta
     - when events emit
     - cooldown semantics
     - once-per-version semantics
+    - request completion versus a visible review dialog
 
 ## Allowed improvements (good PR topics)
 
@@ -87,10 +94,11 @@ Changes must preserve structured concurrency, Flow semantics, and public API sta
 - Add retry/backoff policy (opt-in)
 - Add richer skip reasons and diagnostics
 - Expand deterministic unit test coverage
-- Add a CI workflow
+- Extend focused CI coverage where it adds meaningful validation
 
 ## Disallowed changes
 
 - Adding analytics SDK dependencies
 - Telemetry/phone-home behavior
-- Runtime behavior that requires Play Store credentials or network calls beyond Play Core
+- Runtime behavior that requires Play Store/App Store credentials or adds network calls beyond
+  the platform Play Core/StoreKit review APIs
